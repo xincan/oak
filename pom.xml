@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>cn.com.tarotframework</groupId>
+        <artifactId>tarot-framework</artifactId>
+        <version>0.0.1</version>
+    </parent>
+
+    <artifactId>oak</artifactId>
+    <version>${parent.version}</version>
+    <name>oak</name>
+    <description>oak</description>
+
+    <properties>
+        <spring-security-oauth2-authorization-server.version>0.2.3</spring-security-oauth2-authorization-server.version>
+    </properties>
+
+    <dependencies>
+
+        <!-- 集成 tarot-web 配置 -->
+        <dependency>
+            <groupId>cn.com.tarotframework.boot</groupId>
+            <artifactId>tarot-web-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2</artifactId>
+            <version>2.0.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>easyexcel</artifactId>
+            <version>2.2.11</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.tokenjan</groupId>
+            <artifactId>pinyin4j</artifactId>
+            <version>2.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+            <version>5.3.4.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-extension</artifactId>
+            <version>${mybatis-plus-boot-starter.version}</version>
+        </dependency>
+
+    </dependencies>
+
+
+</project>
