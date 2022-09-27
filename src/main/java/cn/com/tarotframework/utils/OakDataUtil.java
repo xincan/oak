@@ -165,7 +165,8 @@ public class OakDataUtil {
                             filter(phd -> user.getUserName().equals(ph.getUserName()) && ph.getUserName().equals(phd.getUserName()) && ph.getProjectName().equals(phd.getProjectName()))
                             .collect(Collectors.toList()).forEach( w -> {
                                 Double totalHour = w.getSum();
-
+                                // 如果总工时小于8小时，将数据信息组装到当前月的最后一天
+                                // 否则循环当前月所有工作日，根据工作日倒序插入相应工时
                                 if (totalHour <= 8.00) {
                                     ProjectHourDetail detail = ProjectHourDetail.builder()
                                             .month(w.getMonth()).projectName(w.getProjectName()).userName(w.getUserName()).projectStatus("a").everyDay(1)
@@ -176,25 +177,25 @@ public class OakDataUtil {
                                 } else {
                                     int day = (int) Math.ceil(totalHour / 8.00);
                                     int workDay = monthDay.get(w.getMonth()).size();
-                                    if (day >= workDay) {
-                                        monthDay.get(w.getMonth()).forEach(md -> {
-                                            ProjectHourDetail detail = ProjectHourDetail.builder()
-                                                    .month(w.getMonth()).projectName(w.getProjectName()).userName(w.getUserName()).projectStatus("a")
-                                                    .everyDay(1).fillDate(DateUtil.strToDay(md)).daily(ph.getProjectName())
-                                                    .createTime(DateUtil.strToDateTime(md))
-                                                    .useHour(BigDecimal.valueOf(8.00)).sum(w.getSum()).build();
-                                            hours.add(detail);
-                                        });
-                                    } else {
-                                        for (int i = day - 1; i >= 0; i--) {
+//                                    if (day >= workDay) {
+//                                        monthDay.get(w.getMonth()).forEach(md -> {
+//                                            ProjectHourDetail detail = ProjectHourDetail.builder()
+//                                                    .month(w.getMonth()).projectName(w.getProjectName()).userName(w.getUserName()).projectStatus("a")
+//                                                    .everyDay(1).fillDate(DateUtil.strToDay(md)).daily(ph.getProjectName())
+//                                                    .createTime(DateUtil.strToDateTime(md))
+//                                                    .useHour(BigDecimal.valueOf(8.00)).sum(w.getSum()).build();
+//                                            hours.add(detail);
+//                                        });
+//                                    } else {
+                                        for (int i = workDay - 1; i >= 0; i--) {
                                             ProjectHourDetail detail = ProjectHourDetail.builder()
                                                     .month(w.getMonth()).projectName(w.getProjectName()).userName(w.getUserName())
-                                                    .projectStatus("a").everyDay(1).fillDate(DateUtil.strToDay(monthDay.get(w.getMonth()).get(i+1)))
-                                                    .createTime(DateUtil.strToDateTime(monthDay.get(w.getMonth()).get(i+1)))
+                                                    .projectStatus("a").everyDay(1).fillDate(DateUtil.strToDay(monthDay.get(w.getMonth()).get(i)))
+                                                    .createTime(DateUtil.strToDateTime(monthDay.get(w.getMonth()).get(i)))
                                                     .daily(ph.getProjectName()).useHour(BigDecimal.valueOf(8.00)).sum(w.getSum()).build();
                                             hours.add(detail);
                                         }
-                                    }
+//                                    }
                                 }
                             });
                     ph.setProjectHourDetails(hours);
@@ -204,7 +205,7 @@ public class OakDataUtil {
 
 //        userLists.parallelStream().forEach(a -> a.getProjectHours().forEach(b -> b.getProjectHourDetails().parallelStream().forEach(System.out::println)));
 
-//        userLists.parallelStream().filter(a -> a.getUserName().equals("王涛")).forEach( a -> a.getProjectHours().forEach(System.out::println));
+        userLists.parallelStream().filter(a -> a.getUserName().equals("王涛")).forEach( a -> a.getProjectHours().forEach(System.out::println));
 
 //        userLists.parallelStream().forEach(a -> a.getProjectHours().forEach(System.out::println));
 
