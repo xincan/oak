@@ -30,7 +30,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: jx-oak-admin
-    url: jdbc:mysql://10.1.90.139:3306/jx_project_dev?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+    url: jdbc:mysql://10.1.110.211:3306/jx_project_dev?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
     hikari:
       maximum-pool-size: 12
       minimum-idle: 5
