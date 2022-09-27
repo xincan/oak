@@ -28,7 +28,7 @@ public class ProjectHourDetail {
     private LocalDate fillDate;
 
     // 使用工时
-    private BigDecimal useHour;
+    private Double useHour;
 
     // 项目状态：a 进行中，b运维，c 结束
     private String projectStatus;

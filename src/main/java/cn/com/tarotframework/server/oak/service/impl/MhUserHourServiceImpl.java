@@ -1,6 +1,7 @@
 package cn.com.tarotframework.server.oak.service.impl;
 
 
+import cn.com.tarotframework.server.oak.dto.ProjectHourDetail;
 import cn.com.tarotframework.server.oak.dto.User;
 import cn.com.tarotframework.server.oak.mapper.*;
 import cn.com.tarotframework.server.oak.po.*;
@@ -64,10 +65,7 @@ public class MhUserHourServiceImpl implements IMhUserHourService {
     @Override
     public void insert(String year) {
 
-        // 获取全量数据
-        List<User> userList = OakDataUtil.getProjectHours(year);
-
-
+        // 获取系统所有项目
         LambdaQueryWrapper<SysProject> sysProjectLambdaQueryWrapper = Wrappers.lambdaQuery();
         sysProjectLambdaQueryWrapper.select(SysProject::getProjectId, SysProject::getProjectName);
         List<SysProject> sysProjects = sysProjectMapper.selectList(sysProjectLambdaQueryWrapper);
@@ -79,45 +77,56 @@ public class MhUserHourServiceImpl implements IMhUserHourService {
             sp.setDuration(mhProjectHour.getManHour().doubleValue());
         });
 
+        // 获取全量数据
+        List<User> userList = OakDataUtil.getProjectHours(year);
 
+        // 遍历全量数据
         userList.forEach( user -> {
 
+            // 获取用户ID
             LambdaQueryWrapper<SysUser> userLambdaQueryWrapper = Wrappers.lambdaQuery(SysUser.class)
                     .eq(SysUser::getNickName, user.getUserName())
                     .select(SysUser::getUserId, SysUser::getNickName);
             SysUser sysUser = sysUserMapper.selectOne(userLambdaQueryWrapper);
             Long userId = sysUser.getUserId();
 
+            // 遍历用户对应的项目工时
             user.getProjectHours().stream().filter(ph -> ph.getUserName().equals(user.getUserName())).forEach( ph -> {
 
-                // 组装当前人，当前天，对应的项目总工时，且插入系统
-                MhUserHour mhUserHour = MhUserHour.builder()
-                        .userId(userId).fillDate(ph.getFillDate())
-                        .totalHour(BigDecimal.valueOf(ph.getTotalHour())).createTime(ph.getCreateTime()).build();
-
-                mhUserHourMapper.insert(mhUserHour);
-
-                ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-                ph.getProjectHourDetails().forEach( phd -> {
+                // 遍历用户对应每个项目每天的详细工时
+                for (ProjectHourDetail phd : ph.getProjectHourDetails()) {
+                    // 先根据用户ID查询，对应的每天项目总工时，
+                    // 判断当天对应项目总工时ID是否存在，如果不存在则插入总工时数据，否则获取总工时Id
+                    LambdaQueryWrapper<MhUserHour> mhUserHourLambdaQueryWrapper = Wrappers.lambdaQuery();
+                    mhUserHourLambdaQueryWrapper.eq(MhUserHour::getUserId, userId)
+                            .eq(MhUserHour::getFillDate, phd.getFillDate())
+                            .select(MhUserHour::getId);
+                    MhUserHour uh = mhUserHourMapper.selectOne(mhUserHourLambdaQueryWrapper);
+                    if (uh == null) {
+                        uh = new MhUserHour();
+                        // 组装当前人，当前天，对应的项目总工时，且插入系统
+                        MhUserHour mhUserHour = MhUserHour.builder()
+                                .userId(userId).fillDate(phd.getFillDate())
+                                .totalHour(BigDecimal.valueOf(ph.getTotalHour())).createTime(ph.getCreateTime()).build();
+                        mhUserHourMapper.insert(mhUserHour);
+                        uh.setId(mhUserHour.getId());
+                    }
 
                     // 根据项目名称，比对当前用户对应填报的项目信息，填充项目ID
-                    sysProjects.stream().filter( p -> p.getProjectName().equals(phd.getProjectName())).forEach( p -> {
-                        MhHourDetail mhHourDetail =MhHourDetail.builder()
+                    MhUserHour finalUh = uh;
+                    sysProjects.stream().filter(p -> p.getProjectName().equals(phd.getProjectName())).forEach(p -> {
+                        MhHourDetail mhHourDetail = MhHourDetail.builder()
                                 .projectId(p.getProjectId()).userId(userId)
-                                .hourId(mhUserHour.getId())
-                                .useHour(phd.getUseHour()).fillDate(phd.getFillDate())
+                                .hourId(finalUh.getId())
+                                .useHour(BigDecimal.valueOf(phd.getUseHour())).fillDate(phd.getFillDate())
                                 .projectStatus(phd.getProjectStatus()).everyday(phd.getEveryDay())
                                 .daily(phd.getDaily()).createTime(phd.getCreateTime())
                                 .build();
                         mhHourDetailMapper.insert(mhHourDetail);
-                        System.out.println(userId + "    " + mhUserHour.getId() + "   " + p.getProjectId() + "   " + mhHourDetail.getId());
+                        System.out.println(userId + "    " + finalUh.getId() + "   " + p.getProjectId() + "   " + mhHourDetail.getId());
                     });
-                });
-
+                }
             });
         });
     }
-
-
 }

@@ -18,7 +18,7 @@ public class ExcelData extends BaseRowModel {
     @ExcelProperty("月份")
     private String month;
 
-    @ExcelProperty("工时填报人(必填)")
+    @ExcelProperty("工时填报人")
     private String name;
 
     @ExcelProperty("区域")
@@ -30,10 +30,10 @@ public class ExcelData extends BaseRowModel {
     @ExcelProperty("部门")
     private String twoDepart;
 
-    @ExcelProperty("工时明细.产品线")
+    @ExcelProperty("产品线")
     private String productType;
 
-    @ExcelProperty("工时明细.工时分类")
+    @ExcelProperty("工时分类")
     private String hourType;
 
     @ExcelProperty("编号")

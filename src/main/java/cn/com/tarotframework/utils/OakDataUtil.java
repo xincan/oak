@@ -9,17 +9,17 @@ import cn.com.tarotframework.server.oak.po.SysProjectUser;
 import cn.com.tarotframework.server.oak.po.SysUser;
 import com.alibaba.fastjson2.JSONObject;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 
 public class OakDataUtil {
 
-    public static final String EXCEL_URL = "D:\\hatech-hour\\2021-汇总-改-年月.xlsx";
+    public static final String EXCEL_URL = "D:\\hatech-hour\\2021-汇总.xlsx";
 
     public static List<ExcelData> getExcelData() {
         Map<String, List<ExcelData>> excel = EasyExcelUtil.readExcelByData(EXCEL_URL, ExcelData.class);
@@ -129,7 +129,8 @@ public class OakDataUtil {
                         .build()
         ).collect(Collectors.toList());
 
-//        projectHourDetails.parallelStream().filter(p-> p.getUserName().equals("王涛")).forEach(System.out::println);
+//        projectHourDetails.stream().filter(p-> p.getUserName().equals("王涛")).forEach(System.out::println);
+
 
         // 获取用户下，按照项目分组获取，每个项目总工时
         userLists.forEach(user -> {
@@ -157,50 +158,53 @@ public class OakDataUtil {
 
         // 拆分项目工时，按天计算
         userLists.forEach(
-                user -> user.getProjectHours().stream().filter(
-                        ph -> user.getUserName().equals(ph.getUserName())
-                ).forEach(ph -> {
+            user -> user.getProjectHours().stream()
+                .filter(  ph -> user.getUserName().equals("王涛") )
+                .filter(  ph -> user.getUserName().equals(ph.getUserName()) )
+                .forEach(ph -> {
                     List<ProjectHourDetail> hours = new ArrayList<>();
                     projectHourDetails.stream().
-                            filter(phd -> user.getUserName().equals(ph.getUserName()) && ph.getUserName().equals(phd.getUserName()) && ph.getProjectName().equals(phd.getProjectName()))
-                            .collect(Collectors.toList()).forEach( w -> {
-                                Double totalHour = w.getSum();
-                                // 如果总工时小于8小时，将数据信息组装到当前月的最后一天
-                                // 否则循环当前月所有工作日，根据工作日倒序插入相应工时
-                                if (totalHour <= 8.00) {
+                        filter(phd -> user.getUserName().equals(ph.getUserName()) && ph.getUserName().equals(phd.getUserName()) && ph.getProjectName().equals(phd.getProjectName()))
+                        .collect(Collectors.toList()).forEach( w -> {
+                            Double totalHour = w.getSum();
+                            // 如果总工时小于8小时，将数据信息组装到当前月的最后一天
+                            // 否则循环当前月所有工作日，根据工作日倒序插入相应工时
+                            if (totalHour <= 8.00) {
+                                ProjectHourDetail detail = ProjectHourDetail.builder()
+                                    .userName(w.getUserName())
+                                    .month(w.getMonth()).projectName(w.getProjectName()).userName(w.getUserName()).projectStatus("a").everyDay(1)
+                                    .fillDate(DateUtil.strToDay(monthDay.get(w.getMonth()).get(monthDay.get(w.getMonth()).size() - 1)))
+                                    .createTime(DateUtil.strToDateTime(monthDay.get(w.getMonth()).get(monthDay.get(w.getMonth()).size() - 1)))
+                                    .daily(ph.getProjectName()).useHour(totalHour).sum(w.getSum()).build();
+                                hours.add(detail);
+                            } else {
+                                int day = (int) Math.ceil(totalHour / 8.00);
+                                int workDay = monthDay.get(w.getMonth()).size();
+
+                                for (int i = workDay - 1; i >= 0; i--) {
                                     ProjectHourDetail detail = ProjectHourDetail.builder()
-                                            .month(w.getMonth()).projectName(w.getProjectName()).userName(w.getUserName()).projectStatus("a").everyDay(1)
-                                            .fillDate(DateUtil.strToDay(monthDay.get(w.getMonth()).get(monthDay.get(w.getMonth()).size() - 1)))
-                                            .createTime(DateUtil.strToDateTime(monthDay.get(w.getMonth()).get(monthDay.get(w.getMonth()).size() - 1)))
-                                            .daily(ph.getProjectName()).useHour(BigDecimal.valueOf(totalHour)).sum(w.getSum()).build();
+                                        .userName(w.getUserName())
+                                        .month(w.getMonth()).projectName(w.getProjectName()).userName(w.getUserName())
+                                        .projectStatus("a").everyDay(1).fillDate(DateUtil.strToDay(monthDay.get(w.getMonth()).get(i)))
+                                        .createTime(DateUtil.strToDateTime(monthDay.get(w.getMonth()).get(i)))
+                                        .daily(ph.getProjectName()).useHour(8.00).sum(w.getSum()).build();
                                     hours.add(detail);
-                                } else {
-                                    int day = (int) Math.ceil(totalHour / 8.00);
-                                    int workDay = monthDay.get(w.getMonth()).size();
-
-                                    for (int i = workDay - 1; i >= 0; i--) {
-                                        ProjectHourDetail detail = ProjectHourDetail.builder()
-                                                .month(w.getMonth()).projectName(w.getProjectName()).userName(w.getUserName())
-                                                .projectStatus("a").everyDay(1).fillDate(DateUtil.strToDay(monthDay.get(w.getMonth()).get(i)))
-                                                .createTime(DateUtil.strToDateTime(monthDay.get(w.getMonth()).get(i)))
-                                                .daily(ph.getProjectName()).useHour(BigDecimal.valueOf(8.00)).sum(w.getSum()).build();
-                                        hours.add(detail);
-                                    }
-
                                 }
-                            });
+                            }
+                        });
                     ph.setProjectHourDetails(hours);
 
                 })
+
         );
 
-//        userLists.parallelStream().forEach(a -> a.getProjectHours().forEach(b -> b.getProjectHourDetails().parallelStream().forEach(System.out::println)));
 
-        userLists.parallelStream().filter(a -> a.getUserName().equals("王涛")).forEach( a -> a.getProjectHours().forEach(System.out::println));
+        // 获取王涛，所有项目，全年工作日，日报填写情况
+//        userLists.stream().filter( a -> a.getUserName().equals("王涛")).forEach(a -> a.getProjectHours().forEach(b -> b.getProjectHourDetails().forEach(System.out::println)));
 
-//        userLists.parallelStream().forEach(a -> a.getProjectHours().forEach(System.out::println));
+//        userLists.parallelStream().filter(a -> a.getUserName().equals("王涛")).forEach( a -> a.getProjectHours().forEach(System.out::println));
 
-//        System.out.println(userLists.size());
+
         return userLists;
     }
 
@@ -214,6 +218,7 @@ public class OakDataUtil {
 //        getUsers("2021");
 
         getProjectHours("2021");
+
 
     }
 
