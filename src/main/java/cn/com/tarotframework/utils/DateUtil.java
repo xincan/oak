@@ -16,66 +16,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * 日期处理类
+ */
 @Slf4j
 public class DateUtil {
 
-    public static List<String> getToDayList(String year) {
-        List<String> result = new ArrayList<>();
-        try {
-            //如果没有传入需要生成哪年的日历，则会自动生成明年的。如果传入哪年的就生成哪年的日历
-            if (StringUtils.isEmpty(year)) {
-                year = String.valueOf(Calendar.getInstance().get(Calendar.YEAR) + 1);
-            }
-            //开始时间
-            Calendar startTime = Calendar.getInstance();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            startTime.setTime(simpleDateFormat.parse(year + "-01-01"));
-            //结束时间
-            Calendar endTime = Calendar.getInstance();
-            endTime.setTime(simpleDateFormat.parse(year + "-12-31"));
-            while (startTime.compareTo(endTime) <= 0) {
-                String week = dateToWeek(simpleDateFormat.format(startTime.getTime()));
-                if (!"星期六".equals(week) && !"星期日".equals(week)) {
-                    //result.put(simpleDateFormat.format(startTime.getTime()).trim(),week.trim());
-                    result.add(simpleDateFormat.format(startTime.getTime()).trim());
-                }
-                //时间加一天
-                startTime.set(Calendar.DATE, startTime.get(Calendar.DATE) + 1);
-            }
-        } catch (Exception e) {
-            log.info("DateWeekUtils-->getToDay() 获取时间错误:{}", e.getMessage());
-        }
-        return result;
-    }
-
-    public static Map<String, String> getToDay(String year) {
-        Map<String, String> result = new LinkedHashMap<>();
-        try {
-            //如果没有传入需要生成哪年的日历，则会自动生成明年的。如果传入哪年的就生成哪年的日历
-            if (StringUtils.isEmpty(year)) {
-                year = String.valueOf(Calendar.getInstance().get(Calendar.YEAR) + 1);
-            }
-            //开始时间
-            Calendar startTime = Calendar.getInstance();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            startTime.setTime(simpleDateFormat.parse(year + "-01-01"));
-            //结束时间
-            Calendar endTime = Calendar.getInstance();
-            endTime.setTime(simpleDateFormat.parse(year + "-12-31"));
-            while (startTime.compareTo(endTime) <= 0) {
-                String week = dateToWeek(simpleDateFormat.format(startTime.getTime()));
-                if (!"星期六".equals(week) && !"星期日".equals(week)) {
-                    //result.put(simpleDateFormat.format(startTime.getTime()).trim(),week.trim());
-                    result.put(simpleDateFormat.format(startTime.getTime()).trim(), week.trim());
-                }
-                //时间加一天
-                startTime.set(Calendar.DATE, startTime.get(Calendar.DATE) + 1);
-            }
-        } catch (Exception e) {
-            log.info("DateWeekUtils-->getToDay() 获取时间错误:{}", e.getMessage());
-        }
-        return result;
-    }
 
     private static String dateToWeek(String datetime) {
 
@@ -95,17 +41,6 @@ public class DateUtil {
             w = 0;
         return weekDays[w];
     }
-
-    public static String date() {
-        return new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
-    }
-
-    public static List<String> getMonthLastDays(String year) {
-        return Stream.of("1,2,3,4,5,6,7,8,9,10,11,12".split(",")).map(d ->
-                LocalDate.of(Integer.parseInt(year), Integer.parseInt(d), 1).with(TemporalAdjusters.lastDayOfMonth()).toString()
-        ).collect(Collectors.toList());
-    }
-
 
     public static Map<String, List<String>> getToDayListGroup(String year) {
 
@@ -137,9 +72,8 @@ public class DateUtil {
 
         Map<String, List<String>> month = new HashMap<>();
         String finalYear = year;
-        Arrays.stream("01,02,03,04,05,06,07,08,09,10,11,12".split(",")).forEach(m -> {
+        Arrays.stream("01,02,03,04,05,06,07,08,09,10,11,12".split(",")).forEach( m -> {
             List<String> lists = day.stream().filter(d -> m.equals(d.substring(5, 7))).collect(Collectors.toList());
-//            month.put(Integer.parseInt(m)+"月", lists);
             month.put(finalYear + m, lists);
         });
 
@@ -152,6 +86,7 @@ public class DateUtil {
         }
         return LocalDate.parse(str, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
+
     public static LocalDateTime strToDateTime(String str) {
         return LocalDateTime.parse(str + " 18:00:00", DateTimeFormatter.ofPattern("yyyy-M-dd HH:mm:ss"));
     }

@@ -4,6 +4,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+/**
+ * 公共去重类
+ */
 public class DistinctUtil {
 
     public static <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) {

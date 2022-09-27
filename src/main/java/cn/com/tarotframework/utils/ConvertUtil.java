@@ -7,6 +7,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Random;
 
+/**
+ * 数据转换类
+ */
 public class ConvertUtil {
 
     private static final String FIX_CHAR = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -49,7 +52,6 @@ public class ConvertUtil {
             return json;
         }
 
-//        培训及学习类
         if(str.equals("培训及学习类")){
             json.put(PROJECT_NUM, ConvertUtil.FIX_NUM_PX);
             json.put(PROJECT_NAME, str);
