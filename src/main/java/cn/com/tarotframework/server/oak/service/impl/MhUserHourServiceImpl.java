@@ -89,15 +89,17 @@ public class MhUserHourServiceImpl implements IMhUserHourService {
             Long userId = sysUser.getUserId();
 
             user.getProjectHours().stream().filter(ph -> ph.getUserName().equals(user.getUserName())).forEach( ph -> {
-                MhUserHour mhUserHour = MhUserHour.builder()
-                        .userId(userId).fillDate(ph.getFillDate())
-                        .totalHour(BigDecimal.valueOf(ph.getTotalHour())).createTime(ph.getCreateTime()).build();
-
-                mhUserHourMapper.insert(mhUserHour);
 
                 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-                ph.getProjectHourDetails().forEach( phd -> {
+                ph.getProjectHourDetails().stream().filter(a->a.getUserName().equals("王涛")).forEach( phd -> {
+                    // 组装当前人，当前天，对应的项目总工时，且插入系统
+                    MhUserHour mhUserHour = MhUserHour.builder()
+                            .userId(userId).fillDate(phd.getFillDate())
+                            .totalHour(BigDecimal.valueOf(ph.getTotalHour())).createTime(ph.getCreateTime()).build();
+
+                    mhUserHourMapper.insert(mhUserHour);
+                    // 根据项目名称，比对当前用户对应填报的项目信息，填充项目ID
                     sysProjects.stream().filter( p -> p.getProjectName().equals(phd.getProjectName())).forEach( p -> {
                         MhHourDetail mhHourDetail =MhHourDetail.builder()
                                 .projectId(p.getProjectId()).userId(userId)
