@@ -13,24 +13,31 @@ import java.util.Random;
 public class ConvertUtil {
 
     private static final String FIX_CHAR = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+    public static final String PROJECT_NUM = "projectNum";
+
+    public static final String PROJECT_NAME = "projectName";
+
     private static final String FIX_NUM = "0123456789";
 
     private static final String FIX_NUM_WU = "WU000000000";
 
     private static final String FIX_NUM_WTX = "WTX00000000";
 
-    private static final String FIX_NUM_PX = "PX00000000";
+    private static final Object FIX_NUM_WTBGS = "WTBGS000000";
+
+    private static final String FIX_NUM_PXXX = "PXXX000000";
 
     private static final String FIX_NUM_XJ = "XJ00000000";
 
-    private static final Object FIX_NUM_KX = "KX00000000";
+    private static final Object FIX_NUM_KXL = "KXL0000000";
 
     private static final Object FIX_NUM_KB = "KB00000000";
 
-    public static final String PROJECT_NUM = "projectNum";
-
-    public static final String PROJECT_NAME = "projectName";
     private static final Object FIX_NUM_CL = "CL00000000";
+    private static final Object FIX_NUM_ZWXX = "ZWXX000000";
+    private static final Object FIX_NUM_BMNBPX = "BMNBPX0000";
+    private static final Object FIX_NUM_GSPX = "GSPX000000";
 
 
 
@@ -41,19 +48,26 @@ public class ConvertUtil {
 
         JSONObject json = new JSONObject();
 
-        if(str.equals("无")){
-            json.put(PROJECT_NUM, ConvertUtil.FIX_NUM_WU);
-            json.put(PROJECT_NAME, str);
-            return json;
-        }
-        if(str.equals("未填写")){
-            json.put(PROJECT_NUM, ConvertUtil.FIX_NUM_WTX);
+        if(str.equals("培训及学习类")){
+            json.put(PROJECT_NUM, ConvertUtil.FIX_NUM_PXXX);
             json.put(PROJECT_NAME, str);
             return json;
         }
 
-        if(str.equals("培训及学习类")){
-            json.put(PROJECT_NUM, ConvertUtil.FIX_NUM_PX);
+        if(str.equals("自我学习")){
+            json.put(PROJECT_NUM, ConvertUtil.FIX_NUM_ZWXX);
+            json.put(PROJECT_NAME, str);
+            return json;
+        }
+
+        if(str.equals("部门内部培训")){
+            json.put(PROJECT_NUM, ConvertUtil.FIX_NUM_BMNBPX);
+            json.put(PROJECT_NAME, str);
+            return json;
+        }
+
+        if(str.equals("公司培训")){
+            json.put(PROJECT_NUM, ConvertUtil.FIX_NUM_GSPX);
             json.put(PROJECT_NAME, str);
             return json;
         }
@@ -64,19 +78,38 @@ public class ConvertUtil {
             return json;
         }
 
-        if(str.equals("空闲类")){
-            json.put(PROJECT_NUM, ConvertUtil.FIX_NUM_KX);
-            json.put(PROJECT_NAME, str);
-            return json;
-        }
-
         if(str.equals("材料支持类")){
             json.put(PROJECT_NUM, ConvertUtil.FIX_NUM_CL);
             json.put(PROJECT_NAME, str);
             return json;
         }
+
+        if(str.equals("无")){
+            json.put(PROJECT_NUM, ConvertUtil.FIX_NUM_WU);
+            json.put(PROJECT_NAME, str);
+            return json;
+        }
+
+        if(str.equals("空闲类")){
+            json.put(PROJECT_NUM, ConvertUtil.FIX_NUM_KXL);
+            json.put(PROJECT_NAME, str);
+            return json;
+        }
+
         if(str.equals("空白")){
             json.put(PROJECT_NUM, ConvertUtil.FIX_NUM_KB);
+            json.put(PROJECT_NAME, str);
+            return json;
+        }
+
+        if(str.equals("未填写")){
+            json.put(PROJECT_NUM, ConvertUtil.FIX_NUM_WTX);
+            json.put(PROJECT_NAME, str);
+            return json;
+        }
+
+        if(str.equals("未填报工时")){
+            json.put(PROJECT_NUM, ConvertUtil.FIX_NUM_WTBGS);
             json.put(PROJECT_NAME, str);
             return json;
         }
