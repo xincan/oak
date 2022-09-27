@@ -177,25 +177,16 @@ public class OakDataUtil {
                                 } else {
                                     int day = (int) Math.ceil(totalHour / 8.00);
                                     int workDay = monthDay.get(w.getMonth()).size();
-//                                    if (day >= workDay) {
-//                                        monthDay.get(w.getMonth()).forEach(md -> {
-//                                            ProjectHourDetail detail = ProjectHourDetail.builder()
-//                                                    .month(w.getMonth()).projectName(w.getProjectName()).userName(w.getUserName()).projectStatus("a")
-//                                                    .everyDay(1).fillDate(DateUtil.strToDay(md)).daily(ph.getProjectName())
-//                                                    .createTime(DateUtil.strToDateTime(md))
-//                                                    .useHour(BigDecimal.valueOf(8.00)).sum(w.getSum()).build();
-//                                            hours.add(detail);
-//                                        });
-//                                    } else {
-                                        for (int i = workDay - 1; i >= 0; i--) {
-                                            ProjectHourDetail detail = ProjectHourDetail.builder()
-                                                    .month(w.getMonth()).projectName(w.getProjectName()).userName(w.getUserName())
-                                                    .projectStatus("a").everyDay(1).fillDate(DateUtil.strToDay(monthDay.get(w.getMonth()).get(i)))
-                                                    .createTime(DateUtil.strToDateTime(monthDay.get(w.getMonth()).get(i)))
-                                                    .daily(ph.getProjectName()).useHour(BigDecimal.valueOf(8.00)).sum(w.getSum()).build();
-                                            hours.add(detail);
-                                        }
-//                                    }
+
+                                    for (int i = workDay - 1; i >= 0; i--) {
+                                        ProjectHourDetail detail = ProjectHourDetail.builder()
+                                                .month(w.getMonth()).projectName(w.getProjectName()).userName(w.getUserName())
+                                                .projectStatus("a").everyDay(1).fillDate(DateUtil.strToDay(monthDay.get(w.getMonth()).get(i)))
+                                                .createTime(DateUtil.strToDateTime(monthDay.get(w.getMonth()).get(i)))
+                                                .daily(ph.getProjectName()).useHour(BigDecimal.valueOf(8.00)).sum(w.getSum()).build();
+                                        hours.add(detail);
+                                    }
+
                                 }
                             });
                     ph.setProjectHourDetails(hours);
