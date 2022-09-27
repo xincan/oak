@@ -67,16 +67,6 @@ public class MhUserHourServiceImpl implements IMhUserHourService {
         // 获取全量数据
         List<User> userList = OakDataUtil.getProjectHours(year);
 
-        // 获取数据库中所有用户数据
-//        LambdaQueryWrapper<SysUser> userLambdaQueryWrapper = Wrappers.lambdaQuery();
-//        userLambdaQueryWrapper.select(SysUser::getUserId, SysUser::getNickName);
-//        List<SysUser> sysUsers = sysUserMapper.selectList(userLambdaQueryWrapper);
-
-        // 获取数据库中所有项目
-//        LambdaQueryWrapper<SysProjectUser> sysProjectUserLambdaQueryWrapper = Wrappers.lambdaQuery();
-//        sysProjectUserLambdaQueryWrapper.select(SysProjectUser::getUserId, SysProjectUser::getProjectId);
-//        List<SysProjectUser> sysProjectUsers = sysProjectUserMapper.selectList(sysProjectUserLambdaQueryWrapper);
-
 
         LambdaQueryWrapper<SysProject> sysProjectLambdaQueryWrapper = Wrappers.lambdaQuery();
         sysProjectLambdaQueryWrapper.select(SysProject::getProjectId, SysProject::getProjectName);
@@ -120,6 +110,7 @@ public class MhUserHourServiceImpl implements IMhUserHourService {
                         System.out.println(userId + "    " + mhUserHour.getId() + "   " + p.getProjectId() + "   " + mhHourDetail.getId());
                     });
                 });
+
             });
         });
     }
