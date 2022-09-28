@@ -5,6 +5,9 @@ tarot:
     groupName: 默认分组
   address:
     mysql: 10.1.90.139:3306
+  file:
+    upload:
+      path: /usr/local/oak
 
 server:
   port: 4000
@@ -25,6 +28,11 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 50MB
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver

@@ -9,6 +9,9 @@ package cn.com.tarotframework.exception;
  * @date: 2022/5/23 10:52
  * @version: 0.0.1
  **/
-public class DemoException extends TarotBusinessException {
+public class OakException extends TarotBusinessException {
 
+    public OakException(int i, String s) {
+        super(i, s);
+    }
 }
