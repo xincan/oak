@@ -17,7 +17,7 @@ server:
 
 spring:
   application:
-    name: tarot-authorization-server
+    name: oak
 
   profiles:
     active: dev
