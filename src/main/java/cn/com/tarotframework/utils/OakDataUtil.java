@@ -56,12 +56,16 @@ public class OakDataUtil {
      * 获取用户数据，组装SysUser，SysProjectUser实体
      */
     public static List<SysUser> getUsers(String year) {
+
         LocalDateTime time = LocalDateTime.parse(year + "-01-01 00:00:00", DateTimeFormatter.ofPattern("yyyy-M-dd HH:mm:ss"));
+        // 获取excel数据
         List<ExcelData> excelDataList = getExcelData();
+
+        // 提取所有用户，根据用户去重
         List<SysUser> users = excelDataList
-                .stream()
+                .parallelStream()
                 .filter(DistinctUtil.distinctByKey(ExcelData::getName)).collect(Collectors.toList())
-                .stream()
+                .parallelStream()
                 .map(su -> {
                     String userName = PinyinUtil.getPinyin(su.getName());
                     return SysUser.builder()
@@ -73,9 +77,11 @@ public class OakDataUtil {
                             .deptId(100L).departmentName(su.getTwoDepart()).sysUserRoleId(108L).sysUserPostId(13L).build();
                 }).collect(Collectors.toList());
 
-        Map<String, List<ExcelData>> projects = excelDataList.stream().filter(a -> a.getName().equals("王涛")).collect(Collectors.groupingBy(ExcelData::getName));
-
+        // 根据用户分组，提取用户对应的项目
         Map<String, List<ExcelData>> up = new HashMap<>();
+
+        Map<String, List<ExcelData>> projects = excelDataList.stream().collect(Collectors.groupingBy(ExcelData::getName));
+        // 遍历去重，提取，该用户对应的所有项目
         projects.forEach((key, value) -> {
             List<ExcelData> list = value.stream()
                     .collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(ExcelData::getProjectName))), ArrayList::new));
@@ -94,10 +100,6 @@ public class OakDataUtil {
             );
             user.setProjectUserList(lists);
         });
-
-
-//        users.forEach(a -> a.getProjectUserList().forEach(System.out::println));
-//        System.out.println(users.size());
         return users;
     }
 
@@ -129,9 +131,6 @@ public class OakDataUtil {
                         .build()
         ).collect(Collectors.toList());
 
-//        projectHourDetails.stream().filter(p-> p.getUserName().equals("王涛")).forEach(System.out::println);
-
-
         // 获取用户下，按照项目分组获取，每个项目总工时
         userLists.forEach(user -> {
             // 获取用户下，按照项目分组获取，每个项目总工时
@@ -148,18 +147,15 @@ public class OakDataUtil {
                     .stream().collect(Collectors.groupingBy(
                             ProjectHour::getProjectName, Collectors.summarizingDouble(ProjectHour::getTotalHour)
                     )).entrySet().stream().map(v -> ProjectHour.builder()
-                            .fillDate(DateUtil.strToDay("2021-01-01")).createTime(LocalDateTime.parse("2021-01-01 18:00:00", DateTimeFormatter.ofPattern("yyyy-M-dd HH:mm:ss")))
+                            .fillDate(DateUtil.strToDay(year + "-01-01")).createTime(LocalDateTime.parse(year + "-01-01 18:00:00", DateTimeFormatter.ofPattern("yyyy-M-dd HH:mm:ss")))
                             .userName(user.getUserName()).totalHour(v.getValue().getSum()).projectName(v.getKey()).build()
                     ).collect(Collectors.toList());
             user.setProjectHours(projectHours);
         });
 
-//        userLists.parallelStream().filter(p-> p.getUserName().equals("王涛")).forEach(a -> a.getProjectHours().forEach(System.out::println));
-
         // 拆分项目工时，按天计算
         userLists.forEach(
             user -> user.getProjectHours().stream()
-                .filter(  ph -> user.getUserName().equals("王涛") )
                 .filter(  ph -> user.getUserName().equals(ph.getUserName()) )
                 .forEach(ph -> {
                     List<ProjectHourDetail> hours = new ArrayList<>();
@@ -193,31 +189,21 @@ public class OakDataUtil {
                             }
                         });
                     ph.setProjectHourDetails(hours);
-
                 })
-
         );
-
-
-        // 获取王涛，所有项目，全年工作日，日报填写情况
-//        userLists.stream().filter( a -> a.getUserName().equals("王涛")).forEach(a -> a.getProjectHours().forEach(b -> b.getProjectHourDetails().forEach(System.out::println)));
-
-//        userLists.parallelStream().filter(a -> a.getUserName().equals("王涛")).forEach( a -> a.getProjectHours().forEach(System.out::println));
-
-
         return userLists;
     }
 
     public static void main(String[] args) {
 
-//            getExcelData();
+//         getExcelData();
 
 //         getProjects("2021").forEach(System.out::println);
 //        System.out.println(getProjects("2021").size());
 
 //        getUsers("2021");
 
-        getProjectHours("2021");
+//        getProjectHours("2021");
 
 
     }
