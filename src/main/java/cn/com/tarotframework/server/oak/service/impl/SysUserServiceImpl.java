@@ -2,16 +2,18 @@ package cn.com.tarotframework.server.oak.service.impl;
 
 
 import cn.com.tarotframework.server.oak.mapper.*;
-import cn.com.tarotframework.server.oak.po.*;
-import cn.com.tarotframework.server.oak.service.ISysProjectService;
+import cn.com.tarotframework.server.oak.po.SysProject;
+import cn.com.tarotframework.server.oak.po.SysUser;
+import cn.com.tarotframework.server.oak.po.SysUserPost;
+import cn.com.tarotframework.server.oak.po.SysUserRole;
 import cn.com.tarotframework.server.oak.service.ISysUserService;
 import cn.com.tarotframework.utils.OakDataUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,8 +31,6 @@ public class SysUserServiceImpl implements ISysUserService {
 
     private final ISysUserMapper sysUserMapper;
 
-    private final ISysDeptMapper sysDeptMapper;
-
     private final ISysUserPostMapper sysUserPostMapper;
 
     private final ISysUserRoleMapper sysUserRoleMapper;
@@ -40,9 +40,9 @@ public class SysUserServiceImpl implements ISysUserService {
     private final ISysProjectUserMapper sysProjectUserMapper;
 
 
-    public SysUserServiceImpl(ISysUserMapper sysUserMapper, ISysDeptMapper sysDeptMapper, ISysUserPostMapper sysUserPostMapper, ISysUserRoleMapper sysUserRoleMapper, ISysProjectMapper sysProjectMapper, ISysProjectUserMapper sysProjectUserMapper) {
+    public SysUserServiceImpl(ISysUserMapper sysUserMapper, ISysUserPostMapper sysUserPostMapper,
+                              ISysUserRoleMapper sysUserRoleMapper, ISysProjectMapper sysProjectMapper, ISysProjectUserMapper sysProjectUserMapper) {
         this.sysUserMapper = sysUserMapper;
-        this.sysDeptMapper = sysDeptMapper;
         this.sysUserPostMapper = sysUserPostMapper;
         this.sysUserRoleMapper = sysUserRoleMapper;
         this.sysProjectMapper = sysProjectMapper;
@@ -50,23 +50,35 @@ public class SysUserServiceImpl implements ISysUserService {
     }
 
     @Override
-    public void insert(String year) {
-        List<SysUser> users = OakDataUtil.getUsers(year);
+    public void insert(String file) {
+        List<SysUser> users = OakDataUtil.getUsers(file);
 
         // 获取项目信息
         LambdaQueryWrapper<SysProject> projectLambdaQueryWrapper = Wrappers.lambdaQuery();
         projectLambdaQueryWrapper.select(SysProject::getProjectId, SysProject::getProjectName);
         List<SysProject> projects = this.sysProjectMapper.selectList(projectLambdaQueryWrapper);
 
+        LambdaQueryWrapper<SysUser> userLambdaQueryWrapper = Wrappers.lambdaQuery();
+        userLambdaQueryWrapper.select(SysUser::getUserId, SysUser::getNickName);
+        List<SysUser> sysUsers = this.sysUserMapper.selectList(userLambdaQueryWrapper);
+
+        // 求users中，sysUsers的补集
+        List<SysUser> insertUsers = users.stream().filter(user ->
+                        !sysUsers.stream().map(SysUser::getNickName)
+                                .collect(Collectors.toList()).contains(user.getNickName()))
+                .collect(Collectors.toList());
+
+
         // 比对用户与部门集合，将比对上的部门信息ID，回填给用户对象
-        users.forEach( user -> {
+        insertUsers.forEach( user -> {
             projects.forEach( project -> {
                 user.getProjectUserList().stream()
                         .filter( sysProjectUser -> project.getProjectName().equals(sysProjectUser.getProjectName()) )
                         .forEach( sysProjectUser -> sysProjectUser.setProjectId(project.getProjectId()) );
             });
         });
-        users.forEach( user -> {
+
+        insertUsers.forEach( user -> {
             sysUserMapper.insert(user);
             sysUserPostMapper.insert(SysUserPost.builder().userId(user.getUserId()).postId(user.getSysUserPostId()).build());
             sysUserRoleMapper.insert(SysUserRole.builder().userId(user.getUserId()).roleId(user.getSysUserRoleId()).build());

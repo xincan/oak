@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface ISysUserService {
 
-    void insert(String year);
+    void insert(String file);
 
 }

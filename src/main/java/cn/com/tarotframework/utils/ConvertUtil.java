@@ -115,33 +115,42 @@ public class ConvertUtil {
         }
 
         String name = str;
-        char[] b = name.toCharArray();
         int index = 0;
         StringBuilder number = new StringBuilder();
-
-        for (int i = 0; i < b.length; i++){
-            if(FIX_CHAR.contains(String.valueOf(b[i]))) {
-                index = i;
-                number.append(b[i]);
-            } else {
-                name = name.substring(index + 1, name.length());
-                break;
+        boolean eq = false;
+        if(str.contains("&")) {
+            eq = true;
+            number.append(str.split("&")[0]);
+        } else {
+            char[] b = name.toCharArray();
+            for (int i = 0; i < b.length; i++) {
+                if (FIX_CHAR.contains(String.valueOf(b[i]))) {
+                    index = i;
+                    number.append(b[i]);
+                } else {
+                    name = name.substring(index + 1, name.length());
+                    break;
+                }
             }
-        }
-        b =  name.toCharArray();
-        for (int i = 0; i < b.length; i++){
-            if(FIX_NUM.contains(String.valueOf(b[i]))) {
-                index = index + i;
-                number.append(b[i]);
-            } else {
-                break;
+            b = name.toCharArray();
+            for (int i = 0; i < b.length; i++) {
+                if (FIX_NUM.contains(String.valueOf(b[i]))) {
+                    index = index + i;
+                    number.append(b[i]);
+                } else {
+                    break;
+                }
             }
         }
 
         String num = number.toString().trim();
         String pn = str.replace(num, "").trim();
         json.put(PROJECT_NUM, num.length() == 0 ? setNum() : num);
-        json.put(PROJECT_NAME, pn.length() == 0 ? num : pn);
+        if(eq){
+            json.put(PROJECT_NAME, name.substring(num.length() + 1));
+        }else {
+            json.put(PROJECT_NAME, pn.length() == 0 ? num : pn);
+        }
         return json;
 
 

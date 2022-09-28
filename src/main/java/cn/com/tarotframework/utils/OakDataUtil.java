@@ -13,13 +13,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 
 public class OakDataUtil {
 
-    public static final String EXCEL_URL = "D:\\hatech-hour\\2021-汇总.xlsx";
+    public static final String EXCEL_URL = "D:\\hatech-hour\\2022-汇总.xlsx";
 
     public static List<ExcelData> getExcelData() {
         Map<String, List<ExcelData>> excel = EasyExcelUtil.readExcelByData(EXCEL_URL, ExcelData.class);
@@ -36,19 +35,20 @@ public class OakDataUtil {
         return dataList;
     }
 
+    static int index = 0;
     /**
      * 获取所有项目，组装SysProject实体
      */
     public static List<SysProject> getProjects(String year) {
         return new ArrayList<>(getExcelData()
-                .parallelStream()
+                .stream()
                 .collect(Collectors.groupingBy(ExcelData::getProjectName, HashMap::new, Collectors.collectingAndThen(Collectors.toList(), ed ->
-                        SysProject.builder()
-                                .projectName(ed.get(0).getProjectName()).projectCode(ed.get(0).getProjectNum())
-                                .projectManager(1).enable(1).projectStatus("a")
-                                .startDate(LocalDate.parse(year + "-01-01", DateTimeFormatter.ofPattern("yyyy-M-dd"))).remark("无").createBy("admin")
-                                .createTime(LocalDateTime.parse(year + "-01-01 12:12:12", DateTimeFormatter.ofPattern("yyyy-M-dd HH:mm:ss")))
-                                .duration(ed.stream().mapToDouble(ExcelData::getHour).sum()).build()
+                  SysProject.builder()
+                            .projectName(ed.get(0).getProjectName()).projectCode(ed.get(0).getProjectNum())
+                            .projectManager(1).enable(1).projectStatus("a")
+                            .startDate(LocalDate.parse(year + "-01-01", DateTimeFormatter.ofPattern("yyyy-M-dd"))).remark("无").createBy("admin")
+                            .createTime(LocalDateTime.parse(year + "-01-01 12:12:12", DateTimeFormatter.ofPattern("yyyy-M-dd HH:mm:ss")))
+                            .duration(ed.stream().mapToDouble(ExcelData::getHour).sum()).build()
                 ))).values());
     }
 
@@ -58,6 +58,7 @@ public class OakDataUtil {
     public static List<SysUser> getUsers(String year) {
 
         LocalDateTime time = LocalDateTime.parse(year + "-01-01 00:00:00", DateTimeFormatter.ofPattern("yyyy-M-dd HH:mm:ss"));
+        String password = SecurityUtils.encryptPassword("123456");
         // 获取excel数据
         List<ExcelData> excelDataList = getExcelData();
 
@@ -72,7 +73,7 @@ public class OakDataUtil {
                             .userName(userName).nickName(su.getName())
                             .userType("00").email(userName + "@hatech.com.cn").sex("2")
                             .avatar("/profile/avatar/2022/09/23/89f54f83-35be-4952-becb-fca07944865e.jpeg")
-                            .password(SecurityUtils.encryptPassword("123456"))
+                            .password(password)
                             .status("0").delFlag("0").createBy("admin").createTime(time).updateBy("admin").updateTime(time).remark("管理员")
                             .deptId(100L).departmentName(su.getTwoDepart()).sysUserRoleId(108L).sysUserPostId(13L).build();
                 }).collect(Collectors.toList());
@@ -167,7 +168,6 @@ public class OakDataUtil {
                             // 否则循环当前月所有工作日，根据工作日倒序插入相应工时
                             if (totalHour <= 8.00) {
                                 ProjectHourDetail detail = ProjectHourDetail.builder()
-                                    .userName(w.getUserName())
                                     .month(w.getMonth()).projectName(w.getProjectName()).userName(w.getUserName()).projectStatus("a").everyDay(1)
                                     .fillDate(DateUtil.strToDay(monthDay.get(w.getMonth()).get(monthDay.get(w.getMonth()).size() - 1)))
                                     .createTime(DateUtil.strToDateTime(monthDay.get(w.getMonth()).get(monthDay.get(w.getMonth()).size() - 1)))
@@ -177,15 +177,26 @@ public class OakDataUtil {
                                 int day = (int) Math.ceil(totalHour / 8.00);
                                 int workDay = monthDay.get(w.getMonth()).size();
 
-                                for (int i = workDay - 1; i >= 0; i--) {
-                                    ProjectHourDetail detail = ProjectHourDetail.builder()
-                                        .userName(w.getUserName())
-                                        .month(w.getMonth()).projectName(w.getProjectName()).userName(w.getUserName())
-                                        .projectStatus("a").everyDay(1).fillDate(DateUtil.strToDay(monthDay.get(w.getMonth()).get(i)))
-                                        .createTime(DateUtil.strToDateTime(monthDay.get(w.getMonth()).get(i)))
-                                        .daily(ph.getProjectName()).useHour(8.00).sum(w.getSum()).build();
-                                    hours.add(detail);
+                                if (day >= workDay) {
+                                    List<String> days = monthDay.get(w.getMonth());
+                                    for (int i = workDay - 1; i >= 0; i--) {
+                                        ProjectHourDetail detail = ProjectHourDetail.builder()
+                                                .month(w.getMonth()).projectName(w.getProjectName()).userName(w.getUserName()).projectStatus("a").everyDay(1)
+                                                .fillDate(DateUtil.strToDay(days.get(i))).createTime(DateUtil.strToDateTime(days.get(i)))
+                                                .daily(ph.getProjectName()).useHour(8.00).sum(w.getSum()).build();
+                                        hours.add(detail);
+                                    }
+                                } else {
+                                    for (int i = workDay - 1; i >= 0; i--) {
+                                        ProjectHourDetail detail = ProjectHourDetail.builder()
+                                                .month(w.getMonth()).projectName(w.getProjectName()).userName(w.getUserName())
+                                                .projectStatus("a").everyDay(1).fillDate(DateUtil.strToDay(monthDay.get(w.getMonth()).get(i)))
+                                                .createTime(DateUtil.strToDateTime(monthDay.get(w.getMonth()).get(i)))
+                                                .daily(ph.getProjectName()).useHour(8.00).sum(w.getSum()).build();
+                                        hours.add(detail);
+                                    }
                                 }
+
                             }
                         });
                     ph.setProjectHourDetails(hours);
@@ -198,8 +209,8 @@ public class OakDataUtil {
 
 //         getExcelData();
 
-//         getProjects("2021").forEach(System.out::println);
-//        System.out.println(getProjects("2021").size());
+         getProjects("2021").forEach(System.out::println);
+        System.out.println(getProjects("2021").size());
 
 //        getUsers("2021");
 

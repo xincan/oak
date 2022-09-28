@@ -10,10 +10,12 @@ import cn.com.tarotframework.utils.OakDataUtil;
 import com.alibaba.fastjson2.JSONObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -33,12 +35,11 @@ public class SysProjectController {
         this.sysProjectService = sysProjectService;
     }
 
-    @ApiOperation(value = "添加项目信息", httpMethod = "POST", notes = "批量添加项目信息")
+    @ApiOperation(value = "1-添加项目信息", httpMethod = "POST", notes = "批量添加项目信息")
     @PostMapping("insert")
-    public void inertProject(String year) {
-
-       List<SysProject> projects = OakDataUtil.getProjects(year);
-       sysProjectService.insert(projects);
-
+    public void inertProject(@ApiParam(name = "file", value = "文件名称：格式（2021-汇总.xlsx  或  2021-08.xlsx）", required = true, example = "")
+                                 @NotNull(message = "文件名称不能为空")
+                                 @RequestParam(name = "file") String file) {
+       sysProjectService.insert(file);
     }
 }

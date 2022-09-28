@@ -10,12 +10,15 @@ import cn.com.tarotframework.utils.OakDataUtil;
 import com.alibaba.fastjson2.JSONObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -36,10 +39,12 @@ public class SysUserController {
     }
 
 
-    @ApiOperation(value = "添加人员", httpMethod = "POST", notes = "添加人员信息、人员配置角色、人员配置部门、人员配置岗位、人员关联项目")
+    @ApiOperation(value = "2-添加人员信息", httpMethod = "POST", notes = "添加人员信息、人员配置角色、人员配置部门、人员配置岗位、人员关联项目")
     @PostMapping("/user/insert")
-    public void inertUsers(String year) {
+    public void inertUsers(@ApiParam(name = "file", value = "文件名称：格式（2021-汇总.xlsx  或  2021-08.xlsx）", required = true, example = "")
+                               @NotNull(message = "文件名称不能为空")
+                               @RequestParam(name = "file") String file) {
 
-        sysUserService.insert(year);
+        sysUserService.insert(file);
     }
 }

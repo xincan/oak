@@ -42,20 +42,14 @@ public class MhUserHourServiceImpl implements IMhUserHourService {
 
     private final IMhHourDetailMapper mhHourDetailMapper;
 
-    private final ISysProjectUserMapper sysProjectUserMapper;
-
     private final ISysProjectMapper sysProjectMapper;
 
     private final IMhProjectHourMapper mhProjectHourMapper;
 
-
-    public MhUserHourServiceImpl(ISysUserMapper sysUserMapper, IMhUserHourMapper mhUserHourMapper,
-                                 ISysProjectUserMapper sysProjectUserMapper, IMhHourDetailMapper mhHourDetailMapper,
-                                 ISysProjectMapper sysProjectMapper,
-                                 IMhProjectHourMapper mhProjectHourMapper) {
+    public MhUserHourServiceImpl(ISysUserMapper sysUserMapper, IMhUserHourMapper mhUserHourMapper, IMhHourDetailMapper mhHourDetailMapper,
+                                 ISysProjectMapper sysProjectMapper, IMhProjectHourMapper mhProjectHourMapper) {
         this.sysUserMapper = sysUserMapper;
         this.mhUserHourMapper = mhUserHourMapper;
-        this.sysProjectUserMapper = sysProjectUserMapper;
         this.mhHourDetailMapper = mhHourDetailMapper;
         this.sysProjectMapper = sysProjectMapper;
         this.mhProjectHourMapper = mhProjectHourMapper;
@@ -63,7 +57,7 @@ public class MhUserHourServiceImpl implements IMhUserHourService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void insert(String year) {
+    public void insert(String file) {
 
         // 获取系统所有项目
         LambdaQueryWrapper<SysProject> sysProjectLambdaQueryWrapper = Wrappers.lambdaQuery();
@@ -78,7 +72,7 @@ public class MhUserHourServiceImpl implements IMhUserHourService {
         });
 
         // 获取全量数据
-        List<User> userList = OakDataUtil.getProjectHours(year);
+        List<User> userList = OakDataUtil.getProjectHours(file);
 
         // 遍历全量数据
         userList.forEach( user -> {
