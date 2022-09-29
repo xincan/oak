@@ -27,7 +27,7 @@ public class FileUtils {
 
         try {
             file.transferTo(newTargetFile);
-            return newTargetFile.getPath() + "/" + filename;
+            return newTargetFile.getPath();
         } catch (IOException e) {
             e.printStackTrace();
             throw new OakException(20001, "文件上传失败: " + filename);
