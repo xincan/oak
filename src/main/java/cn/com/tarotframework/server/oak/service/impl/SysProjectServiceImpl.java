@@ -13,6 +13,7 @@ import cn.com.tarotframework.utils.OakDataUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -47,6 +48,7 @@ public class SysProjectServiceImpl implements ISysProjectService {
         return OakDataUtil.getProjects(excelDataLists, year);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void insert(String filePath) {
 

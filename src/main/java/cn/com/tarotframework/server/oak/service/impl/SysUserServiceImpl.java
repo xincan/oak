@@ -14,6 +14,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +60,7 @@ public class SysUserServiceImpl implements ISysUserService {
         return OakDataUtil.getUsers(excelDataLists, year);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void insert(String filePath) {
 
