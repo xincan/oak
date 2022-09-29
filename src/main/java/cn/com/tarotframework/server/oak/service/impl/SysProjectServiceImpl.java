@@ -1,6 +1,8 @@
 package cn.com.tarotframework.server.oak.service.impl;
 
 
+import cn.com.tarotframework.server.oak.dto.ExcelData;
+import cn.com.tarotframework.server.oak.dto.User;
 import cn.com.tarotframework.server.oak.mapper.IMhProjectHourMapper;
 import cn.com.tarotframework.server.oak.mapper.ISysProjectMapper;
 import cn.com.tarotframework.server.oak.po.MhProjectHour;
@@ -37,10 +39,18 @@ public class SysProjectServiceImpl implements ISysProjectService {
         this.mhProjectHourMapper = mhProjectHourMapper;
     }
 
-    @Override
-    public void insert(String file) {
+    private List<SysProject> selectExcelDataList(String filePath) {
+        //获取excel全量数据
+        List<ExcelData> excelDataLists = OakDataUtil.getExcelData(filePath);
+        String year = filePath.substring(filePath.lastIndexOf("/") + 1).split("-")[0];
+        // 获取全量数据
+        return OakDataUtil.getProjects(excelDataLists, year);
+    }
 
-        List<SysProject> projects = OakDataUtil.getProjects(file);
+    @Override
+    public void insert(String filePath) {
+
+        List<SysProject> projects = selectExcelDataList(filePath);
         // 获取项目信息
         LambdaQueryWrapper<SysProject> projectLambdaQueryWrapper = Wrappers.lambdaQuery();
         projectLambdaQueryWrapper.select(SysProject::getProjectId, SysProject::getProjectName);

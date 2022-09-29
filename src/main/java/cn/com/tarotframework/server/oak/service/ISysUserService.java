@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface ISysUserService {
 
-    void insert(String file);
+    void insert(String filePath);
 
 }

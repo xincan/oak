@@ -1,27 +1,20 @@
 package cn.com.tarotframework.server.oak.service.impl;
 
 
+import cn.com.tarotframework.server.oak.dto.ExcelData;
 import cn.com.tarotframework.server.oak.dto.ProjectHourDetail;
 import cn.com.tarotframework.server.oak.dto.User;
 import cn.com.tarotframework.server.oak.mapper.*;
 import cn.com.tarotframework.server.oak.po.*;
 import cn.com.tarotframework.server.oak.service.IMhUserHourService;
-import cn.com.tarotframework.server.oak.service.ISysProjectUserService;
 import cn.com.tarotframework.utils.OakDataUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * copyright (C), 2022, 塔罗牌基础架构
@@ -55,6 +48,16 @@ public class MhUserHourServiceImpl implements IMhUserHourService {
         this.mhProjectHourMapper = mhProjectHourMapper;
     }
 
+
+    private List<User> selectExcelDataList(String filePath) {
+        //获取excel全量数据
+        List<ExcelData> excelDataLists = OakDataUtil.getExcelData(filePath);
+        String year = filePath.substring(filePath.lastIndexOf("/") + 1).split("-")[0];
+        // 获取全量数据
+        return OakDataUtil.getProjectHours(excelDataLists, year);
+    }
+
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void insert(String file) {
@@ -72,7 +75,7 @@ public class MhUserHourServiceImpl implements IMhUserHourService {
         });
 
         // 获取全量数据
-        List<User> userList = OakDataUtil.getProjectHours(file);
+        List<User> userList = selectExcelDataList(file);
 
         // 遍历全量数据
         userList.forEach( user -> {

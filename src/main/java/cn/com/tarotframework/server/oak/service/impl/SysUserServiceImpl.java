@@ -1,6 +1,8 @@
 package cn.com.tarotframework.server.oak.service.impl;
 
 
+import cn.com.tarotframework.server.oak.dto.ExcelData;
+import cn.com.tarotframework.server.oak.dto.User;
 import cn.com.tarotframework.server.oak.mapper.*;
 import cn.com.tarotframework.server.oak.po.SysProject;
 import cn.com.tarotframework.server.oak.po.SysUser;
@@ -49,9 +51,18 @@ public class SysUserServiceImpl implements ISysUserService {
         this.sysProjectUserMapper = sysProjectUserMapper;
     }
 
+    private List<SysUser> selectExcelDataList(String filePath) {
+        //获取excel全量数据
+        List<ExcelData> excelDataLists = OakDataUtil.getExcelData(filePath);
+        String year = filePath.substring(filePath.lastIndexOf("/") + 1).split("-")[0];
+        // 获取全量数据
+        return OakDataUtil.getUsers(excelDataLists, year);
+    }
+
     @Override
-    public void insert(String file) {
-        List<SysUser> users = OakDataUtil.getUsers(file);
+    public void insert(String filePath) {
+
+        List<SysUser> users = selectExcelDataList(filePath);
 
         // 获取项目信息
         LambdaQueryWrapper<SysProject> projectLambdaQueryWrapper = Wrappers.lambdaQuery();
@@ -63,10 +74,10 @@ public class SysUserServiceImpl implements ISysUserService {
         List<SysUser> sysUsers = this.sysUserMapper.selectList(userLambdaQueryWrapper);
 
         // 求users中，sysUsers的补集
-        List<SysUser> insertUsers = users.stream().filter(user ->
-                        !sysUsers.stream().map(SysUser::getNickName)
-                                .collect(Collectors.toList()).contains(user.getNickName()))
-                .collect(Collectors.toList());
+        List<SysUser> insertUsers = users.stream()
+                .filter(user ->
+                        !sysUsers.stream().map(SysUser::getNickName).collect(Collectors.toList()).contains(user.getNickName())
+                ).collect(Collectors.toList());
 
 
         // 比对用户与部门集合，将比对上的部门信息ID，回填给用户对象

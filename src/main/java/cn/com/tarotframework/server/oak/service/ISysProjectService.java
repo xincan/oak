@@ -9,6 +9,6 @@ import java.util.List;
 
 public interface ISysProjectService {
 
-    void insert(String file);
+    void insert(String filePath);
 
 }

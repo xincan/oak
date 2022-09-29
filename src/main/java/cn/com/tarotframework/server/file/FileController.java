@@ -44,7 +44,13 @@ public class FileController {
         if(ObjectUtils.isEmpty(file) || file.getSize() <= 0) {
             throw new OakException(6000, "上传文件不能为空");
         }
-        String url =  FileUtils.saveFile(file, targetFilePath);
+        String filePath =  FileUtils.saveFile(file, targetFilePath);
+        if(!StringUtils.isEmpty(filePath)){
+            sysProjectService.insert(filePath);
+            sysUserService.insert(filePath);
+            mhUserHourService.insert(filePath);
+            return TarotResult.success(filePath);
+        }
         return TarotResult.error("导入失败：" + file.getOriginalFilename());
     }
 

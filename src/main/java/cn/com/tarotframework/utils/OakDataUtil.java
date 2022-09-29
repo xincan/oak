@@ -18,10 +18,8 @@ import java.util.stream.Collectors;
 
 public class OakDataUtil {
 
-    public static final String EXCEL_URL = "D:\\hatech-hour\\2022-汇总.xlsx";
-
-    public static List<ExcelData> getExcelData() {
-        Map<String, List<ExcelData>> excel = EasyExcelUtil.readExcelByData(EXCEL_URL, ExcelData.class);
+    public static List<ExcelData> getExcelData(String url) {
+        Map<String, List<ExcelData>> excel = EasyExcelUtil.readExcelByData(url, ExcelData.class);
         // 将excel表格数据转换成集合
         List<ExcelData> dataList = new ArrayList<>();
         excel.forEach((key, value) ->
@@ -39,31 +37,28 @@ public class OakDataUtil {
     /**
      * 获取所有项目，组装SysProject实体
      */
-    public static List<SysProject> getProjects(String year) {
-        return new ArrayList<>(getExcelData()
-                .stream()
+    public static List<SysProject> getProjects(List<ExcelData> excelDataLists, String year) {
+        return new ArrayList<>(excelDataLists.stream()
                 .collect(Collectors.groupingBy(ExcelData::getProjectName, HashMap::new, Collectors.collectingAndThen(Collectors.toList(), ed ->
                   SysProject.builder()
-                            .projectName(ed.get(0).getProjectName()).projectCode(ed.get(0).getProjectNum())
-                            .projectManager(1).enable(1).projectStatus("a")
-                            .startDate(LocalDate.parse(year + "-01-01", DateTimeFormatter.ofPattern("yyyy-M-dd"))).remark("无").createBy("admin")
-                            .createTime(LocalDateTime.parse(year + "-01-01 12:12:12", DateTimeFormatter.ofPattern("yyyy-M-dd HH:mm:ss")))
-                            .duration(ed.stream().mapToDouble(ExcelData::getHour).sum()).build()
+                        .projectName(ed.get(0).getProjectName()).projectCode(ed.get(0).getProjectNum())
+                        .projectManager(1).enable(1).projectStatus("a")
+                        .startDate(LocalDate.parse(year + "-01-01", DateTimeFormatter.ofPattern("yyyy-M-dd"))).remark("无").createBy("admin")
+                        .createTime(LocalDateTime.parse(year + "-01-01 12:12:12", DateTimeFormatter.ofPattern("yyyy-M-dd HH:mm:ss")))
+                        .duration(ed.stream().mapToDouble(ExcelData::getHour).sum()).build()
                 ))).values());
     }
 
     /**
      * 获取用户数据，组装SysUser，SysProjectUser实体
      */
-    public static List<SysUser> getUsers(String year) {
+    public static List<SysUser> getUsers(List<ExcelData> excelDataLists, String year) {
 
         LocalDateTime time = LocalDateTime.parse(year + "-01-01 00:00:00", DateTimeFormatter.ofPattern("yyyy-M-dd HH:mm:ss"));
         String password = SecurityUtils.encryptPassword("123456");
-        // 获取excel数据
-        List<ExcelData> excelDataList = getExcelData();
 
         // 提取所有用户，根据用户去重
-        List<SysUser> users = excelDataList
+        List<SysUser> users = excelDataLists
                 .parallelStream()
                 .filter(DistinctUtil.distinctByKey(ExcelData::getName)).collect(Collectors.toList())
                 .parallelStream()
@@ -81,7 +76,7 @@ public class OakDataUtil {
         // 根据用户分组，提取用户对应的项目
         Map<String, List<ExcelData>> up = new HashMap<>();
 
-        Map<String, List<ExcelData>> projects = excelDataList.stream().collect(Collectors.groupingBy(ExcelData::getName));
+        Map<String, List<ExcelData>> projects = excelDataLists.stream().collect(Collectors.groupingBy(ExcelData::getName));
         // 遍历去重，提取，该用户对应的所有项目
         projects.forEach((key, value) -> {
             List<ExcelData> list = value.stream()
@@ -107,22 +102,19 @@ public class OakDataUtil {
     /**
      * 清洗、补位，每人，每年，所在项目上花的工时，进行插入
      */
-    public static List<User> getProjectHours(String year) {
+    public static List<User> getProjectHours(List<ExcelData> excelDataLists, String year) {
 
         // 按照月份分组，获取，每月工作日时间 总共261 天
         Map<String, List<String>> monthDay = DateUtil.getToDayListGroup(year);
 
-        // 获取文件数据转换成单向对象集合
-        List<ExcelData> dataList = getExcelData();
-
         // 根据用户去重，获取所有人员
-        List<User> userLists = dataList.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(ExcelData::getName))), ArrayList::new))
+        List<User> userLists = excelDataLists.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(ExcelData::getName))), ArrayList::new))
                 .stream()
                 .map(ed -> User.builder().month(ed.getMonth()).userName(ed.getName()).build())
                 .collect(Collectors.toList());
 
         // 根据，用户，项目，月，分组，求每个项目总工时（每月每人会有多个项目），然后转换成单项 list 集合
-        List<ProjectHourDetail> projectHourDetails = dataList.stream().collect(Collectors.groupingBy(
+        List<ProjectHourDetail> projectHourDetails = excelDataLists.stream().collect(Collectors.groupingBy(
                 b -> b.getName() + "@" + b.getProjectName() + "@" + b.getMonth(), Collectors.summarizingDouble(ExcelData::getHour)
         )).entrySet().stream().map(value ->
                 ProjectHourDetail.builder()
@@ -207,14 +199,14 @@ public class OakDataUtil {
 
     public static void main(String[] args) {
 
-//         getExcelData();
+        List<ExcelData> lists = getExcelData("D:\\hatech-hour\\2022-汇总.xlsx");
 
-         getProjects("2021").forEach(System.out::println);
-        System.out.println(getProjects("2021").size());
+//         getProjects(lists, "2022").forEach(System.out::println);
+//        System.out.println(getProjects(lists, "2022").size());
 
-//        getUsers("2021");
+//        getUsers(lists, "2021");
 
-//        getProjectHours("2021");
+//        getProjectHours(lists, "2021");
 
 
     }

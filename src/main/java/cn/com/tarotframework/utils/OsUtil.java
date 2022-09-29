@@ -12,6 +12,14 @@ public class OsUtil {
         return os;
     }
 
+    public static String getOsPath() {
+        String os = System.getProperty("os.name");
+        if(os != null && os.toLowerCase().startsWith("windows")){
+            return "c:";
+        }
+        return os;
+    }
+
     public static void main(String[] args) {
         String a=System.getProperty("os.name");
         System.out.println(a);
