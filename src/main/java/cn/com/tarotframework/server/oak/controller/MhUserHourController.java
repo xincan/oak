@@ -41,7 +41,7 @@ public class MhUserHourController {
             throw new OakException(6000, "上传文件不能为空");
         }
 
-        mhUserHourService.insert(OsUtil.getOsPath() + targetFilePath + file.getOriginalFilename());
+        mhUserHourService.insert(OsUtil.getOsPath() + targetFilePath + "/" + file.getOriginalFilename());
 
     }
 }
