@@ -3,7 +3,7 @@ package cn.com.tarotframework.exception;
 /**
  * copyright (C), 2022, 塔罗牌基础架构
  *
- * @program: tarot-demo
+ * @program: oak
  * @description: 异常处理
  * @author: Jiang Xincan
  * @date: 2022/5/23 10:52
