@@ -70,14 +70,34 @@ public class DateUtil {
             log.info("DateWeekUtils-->getToDay() 获取时间错误:{}", e.getMessage());
         }
 
-        Map<String, List<String>> month = new HashMap<>();
+        Map<String, List<String>> date = new HashMap<>();
         String finalYear = year;
         Arrays.stream("01,02,03,04,05,06,07,08,09,10,11,12".split(",")).forEach( m -> {
             List<String> lists = day.stream().filter(d -> m.equals(d.substring(5, 7))).collect(Collectors.toList());
-            month.put(finalYear + m, lists);
+            date.put(finalYear + m, lists);
         });
 
-        return month;
+        // 去除节假日
+        Map<String, List<String>> workday = date;
+        HolidayUtil.overHolidays(year).entrySet().stream().filter(hd -> date.get(hd.getKey()) != null).forEach(hd -> {
+            List<String> list02 = hd.getValue();
+            List<String> list01 = date.get(hd.getKey());
+            List<String> result = list01.stream().filter(word->!list02.contains(word)).collect(Collectors.toList());
+            workday.put(hd.getKey(), result);
+        });
+
+        // 增加补班工作日
+        HolidayUtil.overWorkDays(year).entrySet().stream().filter(hd -> workday.get(hd.getKey()) != null).forEach(hd -> {
+            List<String> list02 = hd.getValue();
+            List<String> list01 = workday.get(hd.getKey());
+            list01.addAll(0, list02);
+            List<String> list03 = list01.stream().sorted(Comparator.comparing(String::new)).collect(Collectors.toList());
+            workday.put(hd.getKey(), list03);
+        });
+
+        workday.entrySet().forEach(System.out::println);
+
+        return workday;
     }
 
     public static LocalDate strToDay(String str) {
@@ -93,8 +113,8 @@ public class DateUtil {
 
     public static void main(String[] args) {
 
-//        List<String> lists = getToDayList("2021");
-//        System.out.println(lists);
+        Map<String, List<String>> lists = getToDayListGroup("2022");
+//        lists.entrySet().forEach( b -> System.out.println(b));
 //        System.out.println(lists.size());
 
 //        getToDayListGroup("2021").entrySet().parallelStream().filter(a -> a.getKey().equals("1月")).forEach( b-> System.out.println(b.getValue()));
@@ -103,7 +123,6 @@ public class DateUtil {
 
 //        System.out.println(Math.ceil(7.0 / 8.00));
 
-        System.out.println("202101".substring(4, 6));
 
     }
 
