@@ -1,5 +1,7 @@
 package cn.com.tarotframework.utils;
 
+import java.math.BigDecimal;
+
 public class OsUtil {
 
     public static String getOsInfo() {
@@ -23,6 +25,13 @@ public class OsUtil {
     public static void main(String[] args) {
         String a=System.getProperty("os.name");
         System.out.println(a);
+
+        double c = 8.0/3;
+
+        String b = String.format("%.1f", c);
+
+        System.out.println(new BigDecimal(b));
+
     }
 
 }

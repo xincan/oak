@@ -49,6 +49,7 @@ spring:
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath*:mapper/oak/*.xml
 
 knife4j:
   enable: true
