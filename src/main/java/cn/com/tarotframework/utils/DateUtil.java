@@ -102,7 +102,7 @@ public class DateUtil {
     }
 
     public static LocalDateTime strToDateTime(String str) {
-        return LocalDateTime.parse(str + " 18:00:00", DateTimeFormatter.ofPattern("yyyy-M-dd HH:mm:ss"));
+        return LocalDateTime.parse(str + " 18:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
     public static void main(String[] args) {

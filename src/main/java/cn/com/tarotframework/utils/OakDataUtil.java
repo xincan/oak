@@ -103,8 +103,6 @@ public class OakDataUtil {
      */
     public static List<User> getProjectHours(List<ExcelData> excelDataLists, String year) {
 
-        // 按照月份分组，获取，每月工作日时间 总共261 天
-        Map<String, List<String>> monthDay = DateUtil.getToDayListGroup(year);
 
         // 根据用户去重，获取所有人员
         List<User> userLists = excelDataLists.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(ExcelData::getName))), ArrayList::new))
@@ -112,87 +110,48 @@ public class OakDataUtil {
                 .map(ed -> User.builder().month(ed.getMonth()).userName(ed.getName()).build())
                 .collect(Collectors.toList());
 
-        // 根据，用户，项目，月，分组，求每个项目总工时（每月每人会有多个项目），然后转换成单项 list 集合
-        List<ProjectHourDetail> projectHourDetails = excelDataLists.stream().collect(Collectors.groupingBy(
-                b -> b.getName() + "@" + b.getProjectName() + "@" + b.getMonth(), Collectors.summarizingDouble(ExcelData::getHour)
-        )).entrySet().stream().map(value ->
-                ProjectHourDetail.builder()
-                        .userName(value.getKey().split("@")[0])
-                        .projectName(value.getKey().split("@")[1]).month(value.getKey().split("@")[2]).projectStatus("a")
-                        .everyDay(1).count((int) value.getValue().getCount()).sum(value.getValue().getSum())
-                        .build()
-        ).collect(Collectors.toList());
+        //
+        userLists.forEach( user -> {
 
-        // 获取用户下，按照项目分组获取，每个项目总工时
-        userLists.forEach(user -> {
-            // 获取用户下，按照项目分组获取，每个项目总工时
-            List<ProjectHour> projectHours = projectHourDetails.stream()
-                    .filter(pch -> user.getUserName().equals(pch.getUserName()))
-                    .map(ph -> ProjectHour.builder()
-                            .createTime(LocalDateTime.parse(year + "-01-01 18:00:00", DateTimeFormatter.ofPattern("yyyy-M-dd HH:mm:ss")))
-                            .totalHour(ph.getSum())
-                            .projectName(ph.getProjectName())
-                            .fillDate(DateUtil.strToDay(year + "-01-01"))
+            // 当天详情数据
+            List<ProjectHourDetail> projectHourDetailListTotal = new ArrayList<>();
+            excelDataLists.stream().filter( excelData -> user.getUserName().equals(excelData.getName())).forEach( excelData -> {
+                projectHourDetailListTotal.add(ProjectHourDetail.builder()
+                    .userName(user.getUserName())
+                    .projectName(excelData.getProjectName())
+                    .fillDate(DateUtil.strToDay(excelData.getMonth()))
+                    .useHour(excelData.getHour())
+                    .createTime(DateUtil.strToDateTime(excelData.getMonth()))
+                    .projectStatus("a").everyDay(1)
+                    .daily(excelData.getProjectName())
+                    .build());
+            });
+
+            // 当天总数居 对应 mh_user_hour
+            List<ProjectHour> projectHourList = projectHourDetailListTotal.stream().collect(Collectors.groupingBy(
+                    ph -> ph.getUserName() + "@" + ph.getFillDate(), Collectors.summarizingDouble(ProjectHourDetail::getUseHour)
+            )).entrySet().stream().map(value ->
+                    projectHourDetailListTotal.stream().filter(el -> el.getFillDate().equals(DateUtil.strToDay(value.getKey().split("@")[1]))).map(el ->
+                        ProjectHour.builder()
+                            .userName(el.getUserName())
+                            .projectName(el.getProjectName())
+                            .totalHour(BigDecimal.valueOf(value.getValue().getSum()))
+                            .createTime(DateUtil.strToDateTime(el.getFillDate().toString()))
+                            .fillDate(DateUtil.strToDay(el.getFillDate().toString()))
                             .build()
-                    )
-                    .collect(Collectors.toList())
-                    .stream().collect(Collectors.groupingBy(
-                            ProjectHour::getProjectName, Collectors.summarizingDouble(ProjectHour::getTotalHour)
-                    )).entrySet().stream().map(v -> ProjectHour.builder()
-                            .fillDate(DateUtil.strToDay(year + "-01-01")).createTime(LocalDateTime.parse(year + "-01-01 18:00:00", DateTimeFormatter.ofPattern("yyyy-M-dd HH:mm:ss")))
-                            .userName(user.getUserName()).totalHour(v.getValue().getSum()).projectName(v.getKey()).build()
-                    ).collect(Collectors.toList());
-            user.setProjectHours(projectHours);
+                ).collect(Collectors.toList()).get(0)
+            ).collect(Collectors.toList());
+
+            // 当天数据详情 对应mh_user_detail
+            projectHourList.forEach( ph -> {
+                List<ProjectHourDetail> lists = new ArrayList<>();
+                projectHourDetailListTotal.stream()
+                        .filter(phd -> ph.getFillDate().equals(phd.getFillDate()))
+                        .forEach(lists::add);
+                ph.setProjectHourDetails(lists);
+            });
+            user.setProjectHours(projectHourList);
         });
-
-        // 拆分项目工时，按天计算
-        userLists.forEach(
-            user -> user.getProjectHours().stream()
-                .filter(  ph -> user.getUserName().equals(ph.getUserName()) )
-                .forEach(ph -> {
-                    List<ProjectHourDetail> hours = new ArrayList<>();
-                    projectHourDetails.stream().
-                        filter(phd -> user.getUserName().equals(ph.getUserName()) && ph.getUserName().equals(phd.getUserName()) && ph.getProjectName().equals(phd.getProjectName()))
-                        .collect(Collectors.toList()).forEach( w -> {
-                            Double totalHour = w.getSum();
-                            // 如果总工时小于8小时，将数据信息组装到当前月的最后一天
-                            // 否则循环当前月所有工作日，根据工作日倒序插入相应工时
-                            if (totalHour <= 8.00) {
-                                ProjectHourDetail detail = ProjectHourDetail.builder()
-                                    .month(w.getMonth()).projectName(w.getProjectName()).userName(w.getUserName()).projectStatus("a").everyDay(1)
-                                    .fillDate(DateUtil.strToDay(monthDay.get(w.getMonth()).get(monthDay.get(w.getMonth()).size() - 1)))
-                                    .createTime(DateUtil.strToDateTime(monthDay.get(w.getMonth()).get(monthDay.get(w.getMonth()).size() - 1)))
-                                    .daily(ph.getProjectName()).useHour(totalHour).sum(w.getSum()).build();
-                                hours.add(detail);
-                            } else {
-                                int day = (int) Math.ceil(totalHour / 8.00);
-                                int workDay = monthDay.get(w.getMonth()).size();
-
-                                if (day >= workDay) {
-                                    List<String> days = monthDay.get(w.getMonth());
-                                    for (int i = workDay - 1; i >= 0; i--) {
-                                        ProjectHourDetail detail = ProjectHourDetail.builder()
-                                                .month(w.getMonth()).projectName(w.getProjectName()).userName(w.getUserName()).projectStatus("a").everyDay(1)
-                                                .fillDate(DateUtil.strToDay(days.get(i))).createTime(DateUtil.strToDateTime(days.get(i)))
-                                                .daily(ph.getProjectName()).useHour(8.00).sum(w.getSum()).build();
-                                        hours.add(detail);
-                                    }
-                                } else {
-                                    for (int i = workDay - 1; i >= 0; i--) {
-                                        ProjectHourDetail detail = ProjectHourDetail.builder()
-                                                .month(w.getMonth()).projectName(w.getProjectName()).userName(w.getUserName())
-                                                .projectStatus("a").everyDay(1).fillDate(DateUtil.strToDay(monthDay.get(w.getMonth()).get(i)))
-                                                .createTime(DateUtil.strToDateTime(monthDay.get(w.getMonth()).get(i)))
-                                                .daily(ph.getProjectName()).useHour(8.00).sum(w.getSum()).build();
-                                        hours.add(detail);
-                                    }
-                                }
-
-                            }
-                        });
-                    ph.setProjectHourDetails(hours);
-                })
-        );
         return userLists;
     }
 
@@ -205,10 +164,11 @@ public class OakDataUtil {
 //         getProjects(lists, "2022").forEach(System.out::println);
 //        System.out.println(getProjects(lists, "2022").size());
 
-        getUsers(lists, "2022").forEach(System.out::println);
-        System.out.println(getUsers(lists, "2022").size());
+//        getUsers(lists, "2022").forEach(System.out::println);
+//        System.out.println(getUsers(lists, "2022").size());
 
-//        getProjectHours(lists, "2021");
+        getProjectHours(lists, "2022").forEach(System.out::println);
+        System.out.println(getProjectHours(lists, "2022").size());
 
 
     }

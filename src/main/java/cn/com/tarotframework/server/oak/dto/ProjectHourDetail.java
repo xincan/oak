@@ -14,8 +14,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ProjectHourDetail {
 
-    private String month;
-
     private Long projectId;
 
     private String projectName;
@@ -42,9 +40,5 @@ public class ProjectHourDetail {
     private String daily;
 
     private LocalDateTime createTime;
-
-    private Integer count;
-
-    private Double sum;
 
 }
