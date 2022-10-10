@@ -8,7 +8,12 @@ import cn.com.tarotframework.server.oak.po.SysProject;
 import cn.com.tarotframework.server.oak.po.SysProjectUser;
 import cn.com.tarotframework.server.oak.po.SysUser;
 import com.alibaba.fastjson2.JSONObject;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -22,14 +27,7 @@ public class OakDataUtil {
         Map<String, List<ExcelData>> excel = EasyExcelUtil.readExcelByData(url, ExcelData.class);
         // 将excel表格数据转换成集合
         List<ExcelData> dataList = new ArrayList<>();
-        excel.forEach((key, value) ->
-                value.forEach(excelData -> {
-                    JSONObject project = ConvertUtil.getProjectName(excelData.getNum());
-                    excelData.setProjectNum(project.getString(ConvertUtil.PROJECT_NUM));
-                    excelData.setProjectName(project.getString(ConvertUtil.PROJECT_NAME));
-                    dataList.add(excelData);
-                })
-        );
+        excel.forEach((key, value) -> dataList.addAll(value));
         return dataList;
     }
 
@@ -41,7 +39,8 @@ public class OakDataUtil {
         return new ArrayList<>(excelDataLists.stream()
                 .collect(Collectors.groupingBy(ExcelData::getProjectName, HashMap::new, Collectors.collectingAndThen(Collectors.toList(), ed ->
                   SysProject.builder()
-                        .projectName(ed.get(0).getProjectName()).projectCode(ed.get(0).getProjectNum())
+                        .projectName(ed.get(0).getProjectName())
+                        .projectCode(StringUtils.isEmpty(ed.get(0).getProjectNum()) ? ConvertUtil.getProjectNum(ed.get(0).getProjectName()): ed.get(0).getProjectNum())
                         .projectManager(1).enable(1).projectStatus("a")
                         .startDate(LocalDate.parse(year + "-01-01", DateTimeFormatter.ofPattern("yyyy-M-dd"))).remark("无").createBy("admin")
                         .createTime(LocalDateTime.parse(year + "-01-01 12:12:12", DateTimeFormatter.ofPattern("yyyy-M-dd HH:mm:ss")))
@@ -199,12 +198,15 @@ public class OakDataUtil {
 
     public static void main(String[] args) {
 
-        List<ExcelData> lists = getExcelData("D:\\hatech-hour\\2022-汇总.xlsx");
+        List<ExcelData> lists = getExcelData("D:\\hatech-hour\\2022-08-测试数据.xlsx");
+//        lists.forEach(System.out::println);
+//        System.out.println(lists.size());
 
 //         getProjects(lists, "2022").forEach(System.out::println);
 //        System.out.println(getProjects(lists, "2022").size());
 
-//        getUsers(lists, "2021");
+        getUsers(lists, "2022").forEach(System.out::println);
+        System.out.println(getUsers(lists, "2022").size());
 
 //        getProjectHours(lists, "2021");
 

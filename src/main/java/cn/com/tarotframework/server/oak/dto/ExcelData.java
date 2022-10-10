@@ -47,9 +47,13 @@ public class ExcelData extends BaseRowModel {
     @ExcelProperty("工时分类")
     private String hourType;
 
-    @ApiModelProperty(value="编号", dataType = "String", required = true, example = "部门内部培训")
-    @ExcelProperty("编号")
-    private String num;
+    @ApiModelProperty(value="项目编号", dataType = "String", required = true, example = "CP000")
+    @ExcelProperty("项目编号")
+    private String projectNum;
+
+    @ApiModelProperty(value="项目名称", dataType = "String", required = true, example = "one平台")
+    @ExcelProperty("项目名称")
+    private String projectName;
 
     @ApiModelProperty(value="工时", dataType = "String", required = true, example = "3.00")
     @ExcelProperty("工时")
@@ -58,12 +62,6 @@ public class ExcelData extends BaseRowModel {
     @ApiModelProperty(value="人天", dataType = "String", required = true, example = "0.30")
     @ExcelProperty("人天")
     private Double personDay;
-
-    @JsonIgnore
-    private String projectNum;
-
-    @JsonIgnore
-    private String projectName;
 
     @JsonIgnore
     private LocalDate workHour;

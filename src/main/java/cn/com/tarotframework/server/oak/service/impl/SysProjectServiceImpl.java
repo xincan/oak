@@ -14,6 +14,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -48,33 +49,57 @@ public class SysProjectServiceImpl implements ISysProjectService {
         return OakDataUtil.getProjects(excelDataLists, year);
     }
 
-    @Transactional(rollbackFor = Exception.class)
     @Override
     public void insert(String filePath) {
 
         List<SysProject> projects = selectExcelDataList(filePath);
-        // 获取项目信息
+        // 获取目前数据库存在的项目信息
         LambdaQueryWrapper<SysProject> projectLambdaQueryWrapper = Wrappers.lambdaQuery();
         projectLambdaQueryWrapper.select(SysProject::getProjectId, SysProject::getProjectName);
         List<SysProject> sysProjects = this.sysProjectMapper.selectList(projectLambdaQueryWrapper);
 
-        // 求users中，sysUsers的补集
-        List<SysProject> insertProjects = projects.stream().filter(project ->
-                        !sysProjects.stream().map(SysProject::getProjectName)
-                                .collect(Collectors.toList()).contains(project.getProjectName()))
-                .collect(Collectors.toList());
+        // 如果数据库有项目信息，则插入补集
+        // 否则插入全部
+        if (CollectionUtils.isEmpty(sysProjects)) {
+            handleProject(projects);
+        } else {
+            // 求projects中，sysProjects的补集，将补集数据插入数据库
+            List<SysProject> insertProjects = projects.stream().filter(project ->
+                            !sysProjects.stream().map(SysProject::getProjectName)
+                                    .collect(Collectors.toList()).contains(project.getProjectName()))
+                    .collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(insertProjects)) {
+                handleProject(insertProjects);
+            }
+            // 求projects，sysProjects的交集，叠加累计总工时，更新入库mh_project_hour
+            projects.forEach( project -> {
+                sysProjects.forEach( sp -> {
+                    if (project.getProjectName().equals(sp.getProjectName())) {
+                        // 根据projectId, 查询对应的MhProjectHour
+                        MhProjectHour mhProjectHour = mhProjectHourMapper.selectOne(Wrappers.lambdaQuery(MhProjectHour.class)
+                                .eq(MhProjectHour::getProjectId, sp.getProjectId())
+                                .select(MhProjectHour::getManHour));
+                        // 叠加总工时，然后更新
+                        mhProjectHourMapper.update(
+                                MhProjectHour.builder().manHour(mhProjectHour.getManHour().add(BigDecimal.valueOf(project.getDuration()))).build(),
+                                Wrappers.lambdaQuery(MhProjectHour.class).eq(MhProjectHour::getProjectId, sp.getProjectId())
+                        );
+                    }
+                });
+            });
+        }
+    }
 
-        insertProjects.forEach( project -> {
+    @Transactional(rollbackFor = Exception.class)
+    public void handleProject(List<SysProject> projects) {
+        projects.forEach( project -> {
             sysProjectMapper.insert(project);
-            MhProjectHour mhProjectHour = MhProjectHour.builder()
+            mhProjectHourMapper.insert(MhProjectHour.builder()
                     .projectId(project.getProjectId())
                     .manHour(BigDecimal.valueOf(project.getDuration()))
                     .useHour(BigDecimal.valueOf(project.getDuration()))
-                    .build();
-            mhProjectHourMapper.insert(mhProjectHour);
+                    .build());
         });
-
     }
-
 
 }

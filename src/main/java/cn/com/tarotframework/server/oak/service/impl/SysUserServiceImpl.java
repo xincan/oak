@@ -11,10 +11,10 @@ import cn.com.tarotframework.server.oak.po.SysUserRole;
 import cn.com.tarotframework.server.oak.service.ISysUserService;
 import cn.com.tarotframework.utils.OakDataUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,38 +60,46 @@ public class SysUserServiceImpl implements ISysUserService {
         return OakDataUtil.getUsers(excelDataLists, year);
     }
 
-    @Transactional(rollbackFor = Exception.class)
     @Override
     public void insert(String filePath) {
 
         List<SysUser> users = selectExcelDataList(filePath);
 
-        // 获取项目信息
+        // 获取项目信息(projectId, projectName)
         LambdaQueryWrapper<SysProject> projectLambdaQueryWrapper = Wrappers.lambdaQuery();
         projectLambdaQueryWrapper.select(SysProject::getProjectId, SysProject::getProjectName);
         List<SysProject> projects = this.sysProjectMapper.selectList(projectLambdaQueryWrapper);
 
+        // 获取用户信息（userId, nickName）
         LambdaQueryWrapper<SysUser> userLambdaQueryWrapper = Wrappers.lambdaQuery();
         userLambdaQueryWrapper.select(SysUser::getUserId, SysUser::getNickName);
         List<SysUser> sysUsers = this.sysUserMapper.selectList(userLambdaQueryWrapper);
 
-        // 求users中，sysUsers的补集
-        List<SysUser> insertUsers = users.stream()
-                .filter(user ->
-                        !sysUsers.stream().map(SysUser::getNickName).collect(Collectors.toList()).contains(user.getNickName())
-                ).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(sysUsers)) {
+            handleUser(projects, users);
+        }else {
+            // 求users中，sysUsers的补集
+            List<SysUser> insertUsers = users.stream()
+                    .filter(user ->
+                            !sysUsers.stream().map(SysUser::getNickName).collect(Collectors.toList()).contains(user.getNickName())
+                    ).collect(Collectors.toList());
+            // 比对用户与部门集合，将比对上的部门信息ID，回填给用户对象
+            if (!CollectionUtils.isEmpty(insertUsers)) {
+                // 补充projectId 到 SysProjectUser 对象中
+                handleUser(projects, insertUsers);
+            }
+        }
+    }
 
-
-        // 比对用户与部门集合，将比对上的部门信息ID，回填给用户对象
+    @Transactional(rollbackFor = Exception.class)
+    public void handleUser(List<SysProject> projects, List<SysUser> insertUsers) {
         insertUsers.forEach( user -> {
+            // 补充 SysProjectUser 对象中的projectId
             projects.forEach( project -> {
                 user.getProjectUserList().stream()
                         .filter( sysProjectUser -> project.getProjectName().equals(sysProjectUser.getProjectName()) )
                         .forEach( sysProjectUser -> sysProjectUser.setProjectId(project.getProjectId()) );
             });
-        });
-
-        insertUsers.forEach( user -> {
             sysUserMapper.insert(user);
             sysUserPostMapper.insert(SysUserPost.builder().userId(user.getUserId()).postId(user.getSysUserPostId()).build());
             sysUserRoleMapper.insert(SysUserRole.builder().userId(user.getUserId()).roleId(user.getSysUserRoleId()).build());
