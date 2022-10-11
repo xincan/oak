@@ -15,7 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-@Api(tags = {"0-资料管理-工时上传"})
+@Api(tags = {"0-全量增量数据工时上传"})
 @Validated
 @RestController
 @RequestMapping("file")
@@ -39,7 +39,7 @@ public class FileController {
 
 
     @PostMapping("/upload")
-    @ApiOperation("工时文件上传")
+    @ApiOperation("工时文件上传：1：支持全量数据导入，增量数据导入")
     public TarotResult<String> uploadFile(@ApiParam(value = "文件", required = true) @RequestPart @RequestParam("file") MultipartFile file) {
         if(ObjectUtils.isEmpty(file) || file.getSize() <= 0) {
             throw new OakException(6000, "上传文件不能为空");
