@@ -7,10 +7,6 @@ import cn.com.tarotframework.server.oak.dto.User;
 import cn.com.tarotframework.server.oak.po.SysProject;
 import cn.com.tarotframework.server.oak.po.SysProjectUser;
 import cn.com.tarotframework.server.oak.po.SysUser;
-import com.alibaba.fastjson2.JSONObject;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
@@ -158,8 +154,8 @@ public class OakDataUtil {
     public static void main(String[] args) {
 
         List<ExcelData> lists = getExcelData("D:\\hatech-hour\\2022-08-测试数据.xlsx");
-//        lists.forEach(System.out::println);
-//        System.out.println(lists.size());
+        lists.forEach(System.out::println);
+        System.out.println(lists.size());
 
 //         getProjects(lists, "2022").forEach(System.out::println);
 //        System.out.println(getProjects(lists, "2022").size());
@@ -167,8 +163,8 @@ public class OakDataUtil {
 //        getUsers(lists, "2022").forEach(System.out::println);
 //        System.out.println(getUsers(lists, "2022").size());
 
-        getProjectHours(lists, "2022").forEach(System.out::println);
-        System.out.println(getProjectHours(lists, "2022").size());
+//        getProjectHours(lists, "2022").forEach(System.out::println);
+//        System.out.println(getProjectHours(lists, "2022").size());
 
 
     }

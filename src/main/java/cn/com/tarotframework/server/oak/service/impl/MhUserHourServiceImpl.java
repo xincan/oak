@@ -2,7 +2,6 @@ package cn.com.tarotframework.server.oak.service.impl;
 
 
 import cn.com.tarotframework.server.oak.dto.ExcelData;
-import cn.com.tarotframework.server.oak.dto.ProjectHourDetail;
 import cn.com.tarotframework.server.oak.dto.User;
 import cn.com.tarotframework.server.oak.mapper.*;
 import cn.com.tarotframework.server.oak.po.*;
@@ -66,13 +65,6 @@ public class MhUserHourServiceImpl implements IMhUserHourService {
         LambdaQueryWrapper<SysProject> sysProjectLambdaQueryWrapper = Wrappers.lambdaQuery();
         sysProjectLambdaQueryWrapper.select(SysProject::getProjectId, SysProject::getProjectName);
         List<SysProject> sysProjects = sysProjectMapper.selectList(sysProjectLambdaQueryWrapper);
-//        sysProjects.forEach(sp -> {
-//            LambdaQueryWrapper<MhProjectHour> mhProjectHourLambdaQueryWrapper = Wrappers.lambdaQuery(MhProjectHour.class)
-//                    .eq(MhProjectHour::getProjectId, sp.getProjectId())
-//                    .select(MhProjectHour::getProjectId, MhProjectHour::getManHour);
-//            MhProjectHour mhProjectHour = mhProjectHourMapper.selectOne(mhProjectHourLambdaQueryWrapper);
-//            sp.setDuration(mhProjectHour.getManHour().doubleValue());
-//        });
 
         // 获取全量数据
         List<User> userList = selectExcelDataList(file);
@@ -88,7 +80,7 @@ public class MhUserHourServiceImpl implements IMhUserHourService {
             Long userId = sysUser.getUserId();
 
             user.getProjectHours().forEach( ph -> {
-                ph.setUserId(userId);
+
                 MhUserHour mhUserHour = MhUserHour.builder().userId(userId).fillDate(ph.getFillDate())
                         .totalHour(ph.getTotalHour()).createTime(ph.getCreateTime()).build();
                 mhUserHourMapper.insert(mhUserHour);

@@ -1,6 +1,9 @@
 package cn.com.tarotframework.server.oak.service.impl;
 
-import cn.com.tarotframework.server.oak.mapper.*;
+import cn.com.tarotframework.server.oak.mapper.IMhDataScourMapper;
+import cn.com.tarotframework.server.oak.mapper.IMhHourDetailMapper;
+import cn.com.tarotframework.server.oak.mapper.IMhUserHourMapper;
+import cn.com.tarotframework.server.oak.mapper.ISysUserMapper;
 import cn.com.tarotframework.server.oak.po.MhHourDetail;
 import cn.com.tarotframework.server.oak.po.MhUserHour;
 import cn.com.tarotframework.server.oak.po.SysUser;
@@ -14,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class MhDataScourServiceImpl implements IMhDataScourService {
