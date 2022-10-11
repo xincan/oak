@@ -97,13 +97,13 @@ public class OakDataUtil {
     /**
      * 清洗、补位，每人，每年，所在项目上花的工时，进行插入
      */
-    public static List<User> getProjectHours(List<ExcelData> excelDataLists, String year) {
+    public static List<User> getProjectHours(List<ExcelData> excelDataLists) {
 
 
         // 根据用户去重，获取所有人员
         List<User> userLists = excelDataLists.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(ExcelData::getName))), ArrayList::new))
                 .stream()
-                .map(ed -> User.builder().month(ed.getMonth()).userName(ed.getName()).build())
+                .map(ed -> User.builder().fillDate(ed.getFillDate()).userName(ed.getName()).build())
                 .collect(Collectors.toList());
 
         //
@@ -115,9 +115,9 @@ public class OakDataUtil {
                 projectHourDetailListTotal.add(ProjectHourDetail.builder()
                     .userName(user.getUserName())
                     .projectName(excelData.getProjectName())
-                    .fillDate(DateUtil.strToDay(excelData.getMonth()))
+                    .fillDate(DateUtil.strToDay(excelData.getFillDate()))
                     .useHour(excelData.getHour())
-                    .createTime(DateUtil.strToDateTime(excelData.getMonth()))
+                    .createTime(DateUtil.strToDateTime(excelData.getFillDate()))
                     .projectStatus("a").everyDay(1)
                     .daily(excelData.getProjectName())
                     .build());
@@ -154,8 +154,8 @@ public class OakDataUtil {
     public static void main(String[] args) {
 
         List<ExcelData> lists = getExcelData("D:\\hatech-hour\\2022-08-测试数据.xlsx");
-        lists.forEach(System.out::println);
-        System.out.println(lists.size());
+//        lists.forEach(System.out::println);
+//        System.out.println(lists.size());
 
 //         getProjects(lists, "2022").forEach(System.out::println);
 //        System.out.println(getProjects(lists, "2022").size());
@@ -163,8 +163,8 @@ public class OakDataUtil {
 //        getUsers(lists, "2022").forEach(System.out::println);
 //        System.out.println(getUsers(lists, "2022").size());
 
-//        getProjectHours(lists, "2022").forEach(System.out::println);
-//        System.out.println(getProjectHours(lists, "2022").size());
+        getProjectHours(lists).stream().filter(user -> user.getUserName().equals("何玉龙")).forEach(System.out::println);
+        System.out.println(getProjectHours(lists).size());
 
 
     }

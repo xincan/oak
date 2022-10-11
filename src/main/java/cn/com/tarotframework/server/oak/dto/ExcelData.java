@@ -19,9 +19,9 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ExcelData extends BaseRowModel {
 
-    @ApiModelProperty(value="月份", dataType = "String", required = true, example = "202201")
-    @ExcelProperty("月份")
-    private String month;
+    @ApiModelProperty(value="工时填报日期", dataType = "String", required = true, example = "202201")
+    @ExcelProperty("工时填报日期")
+    private String fillDate;
 
     @ApiModelProperty(value="工时填报人", dataType = "String", required = true, example = "张三")
     @ExcelProperty("工时填报人")

@@ -51,9 +51,8 @@ public class MhUserHourServiceImpl implements IMhUserHourService {
     private List<User> selectExcelDataList(String filePath) {
         //获取excel全量数据
         List<ExcelData> excelDataLists = OakDataUtil.getExcelData(filePath);
-        String year = filePath.substring(filePath.lastIndexOf("/") + 1).split("-")[0];
         // 获取全量数据
-        return OakDataUtil.getProjectHours(excelDataLists, year);
+        return OakDataUtil.getProjectHours(excelDataLists);
     }
 
 
