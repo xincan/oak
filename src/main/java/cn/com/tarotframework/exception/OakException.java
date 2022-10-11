@@ -1,7 +1,7 @@
 package cn.com.tarotframework.exception;
 
 /**
- * copyright (C), 2022, 塔罗牌基础架构
+ * copyright (C), 2022, 同创工时系统
  *
  * @program: oak
  * @description: 异常处理

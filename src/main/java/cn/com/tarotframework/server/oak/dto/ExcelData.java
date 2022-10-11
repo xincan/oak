@@ -2,13 +2,9 @@ package cn.com.tarotframework.server.oak.dto;
 
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.metadata.BaseRowModel;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @ApiModel(description = "导入数据接收实体")
 @Builder

@@ -13,13 +13,13 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
- * copyright (C), 2022, 塔罗牌基础架构
+ * copyright (C), 2022, 同创工时系统
  * 项目工时表
- * @program: tarot-authorization-server
- * @description: 用户映射数据库表实体类
+ * @program: oak
+ * @description: 项目工时映射数据库表实体类
  * @author: Jiang Xincan
  * @version: 0.0.1
- * @create: 2022/5/20 18:54
+ * @create: 2022/9/28 18:54
  **/
 @Data
 @TableName("mh_project_hour")

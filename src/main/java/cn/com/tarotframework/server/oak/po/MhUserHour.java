@@ -18,8 +18,8 @@ import java.util.Date;
 /**
  * 工时填报表(MhUserHour)实体类
  *
- * @author makejava
- * @since 2021-09-13 14:06:55
+ * @author Jiang Xincan
+ * @since 2022-09-28 14:06:55
  */
 @Data
 @AllArgsConstructor

@@ -19,13 +19,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * copyright (C), 2022, 塔罗牌基础架构
+ * copyright (C), 2022, 同创工时系统
  *
- * @program tarot-authorization-server
+ * @program oak
  * @description 用户信息接口实现类
  * @author Jiang Xincan
  * @version 0.0.1
- * @create 2022/5/20 18:54
+ * @create 2022/9/28 18:54
  **/
 @Service
 public class SysUserServiceImpl implements ISysUserService {

@@ -3,7 +3,6 @@ package cn.com.tarotframework.server.oak.controller;
 import cn.com.tarotframework.exception.OakException;
 import cn.com.tarotframework.response.TarotResponseResultBody;
 import cn.com.tarotframework.server.oak.service.IMhUserHourService;
-import cn.com.tarotframework.server.oak.service.ISysProjectService;
 import cn.com.tarotframework.utils.OsUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -14,11 +13,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
-
-@Api(tags = {"系统管理-工时管理"})
+@Api(tags = {"3-系统管理-工时管理"})
 @Validated
 @RestController
 @RequestMapping("hour")

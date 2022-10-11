@@ -16,13 +16,13 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * copyright (C), 2022, 塔罗牌基础架构
+ * copyright (C), 2022, 同创工时系统
  *
  * @author Jiang Xincan
  * @version 0.0.1
- * @program tarot-authorization-server
- * @description 用户信息接口实现类
- * @create 2022/5/20 18:54
+ * @program oak
+ * @description 工时详情处理类
+ * @create 2022/9/28 18:54
  **/
 @Service
 public class MhUserHourServiceImpl implements IMhUserHourService {
@@ -87,16 +87,14 @@ public class MhUserHourServiceImpl implements IMhUserHourService {
                 ph.getProjectHourDetails().forEach( phd -> {
                     sysProjects.stream().filter(sp -> sp.getProjectName().equals(phd.getProjectName())).forEach( sp -> phd.setProjectId(sp.getProjectId()));
                     mhHourDetailMapper.insert(MhHourDetail.builder()
-                            .projectId(phd.getProjectId()).userId(userId)
-                            .hourId(mhUserHour.getId())
-                            .useHour(BigDecimal.valueOf(phd.getUseHour())).fillDate(phd.getFillDate())
-                            .projectStatus(phd.getProjectStatus()).everyday(phd.getEveryDay())
-                            .daily(phd.getDaily()).createTime(phd.getCreateTime())
-                            .build());
+                        .projectId(phd.getProjectId()).userId(userId)
+                        .hourId(mhUserHour.getId())
+                        .useHour(BigDecimal.valueOf(phd.getUseHour())).fillDate(phd.getFillDate())
+                        .projectStatus(phd.getProjectStatus()).everyday(phd.getEveryDay())
+                        .daily(phd.getDaily()).createTime(phd.getCreateTime())
+                        .build());
                 });
-
             });
-
         });
     }
 }

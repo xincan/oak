@@ -6,13 +6,13 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * copyright (C), 2022, 塔罗牌基础架构
+ * copyright (C), 2022, 同创工时系统
  *
- * @program tarot-authorization-server
- * @description 用户数据处理接口
+ * @program oak
+ * @description 部门接口
  * @author Jiang Xincan
  * @version 0.0.1
- * @create 2022/5/20 18:54
+ * @create 2022/9/28 18:54
  */
 @Mapper
 public interface ISysDeptMapper extends BaseMapper<SysDept> {

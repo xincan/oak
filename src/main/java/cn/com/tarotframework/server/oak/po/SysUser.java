@@ -12,13 +12,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * copyright (C), 2022, 塔罗牌基础架构
+ * copyright (C), 2022, 同创工时系统
  *
- * @program: tarot-authorization-server
+ * @program: oak
  * @description: 用户映射数据库表实体类
  * @author: Jiang Xincan
  * @version: 0.0.1
- * @create: 2022/5/20 18:54
+ * @create: 2022/9/28 18:54
  **/
 @Data
 @TableName("sys_user")
