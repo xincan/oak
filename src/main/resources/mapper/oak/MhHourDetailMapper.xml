@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.tarotframework.server.oak.mapper.IMhHourDetailMapper">
+
+    <select id="getMhHourDetail" resultType="cn.com.tarotframework.server.oak.po.MhHourDetail">
+        SELECT * FROM mh_hour_detail mhd
+        WHERE mhd.project_id = #{projectId}
+        AND mhd.user_id = #{userId}
+        AND DATE_FORMAT(mhd.fill_date, '%Y-%m') = #{month}
+    </select>
+
+    <delete id="deleteMhHourDetail">
+        delete FROM mh_hour_detail mhd
+        WHERE mhd.project_id = #{projectId}
+        AND mhd.user_id = #{userId}
+        AND DATE_FORMAT(mhd.fill_date, '%Y-%m') = #{month};
+    </delete>
+
+</mapper>

@@ -3,6 +3,9 @@ package cn.com.tarotframework.server.oak.mapper;
 import cn.com.tarotframework.server.oak.po.SysProjectUser;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * copyright (C), 2022, 同创工时系统
@@ -15,4 +18,7 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface ISysProjectUserMapper extends BaseMapper<SysProjectUser> {
+
+    List<SysProjectUser> selectProjectUserByProjectIdAndName(@Param("userName") String userName);
+
 }

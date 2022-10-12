@@ -3,6 +3,7 @@ package cn.com.tarotframework.server.oak.mapper;
 import cn.com.tarotframework.server.oak.po.MhUserHour;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * copyright (C), 2022, 同创工时系统
@@ -15,4 +16,7 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface IMhUserHourMapper extends BaseMapper<MhUserHour> {
+
+    void deleteMhUserHour(@Param("month") String month);
+
 }

@@ -15,7 +15,7 @@ import lombok.*;
 @NoArgsConstructor
 public class ExcelData extends BaseRowModel {
 
-    @ApiModelProperty(value="工时填报日期", dataType = "String", required = true, example = "202201")
+    @ApiModelProperty(value="工时填报日期", dataType = "String", required = true, example = "2022-01")
     @ExcelProperty("工时填报日期")
     private String fillDate;
 

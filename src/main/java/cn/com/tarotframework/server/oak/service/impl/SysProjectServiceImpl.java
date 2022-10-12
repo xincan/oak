@@ -42,7 +42,7 @@ public class SysProjectServiceImpl implements ISysProjectService {
     private List<SysProject> selectExcelDataList(String filePath) {
         //获取excel全量数据
         List<ExcelData> excelDataLists = OakDataUtil.getExcelData(filePath);
-        String year = filePath.substring(filePath.lastIndexOf("/") + 1).split("-")[0];
+        String year = OakDataUtil.getMonth(filePath).substring(0,4);
         // 获取全量数据
         return OakDataUtil.getProjects(excelDataLists, year);
     }

@@ -6,6 +6,8 @@ import cn.com.tarotframework.server.oak.dto.User;
 import cn.com.tarotframework.server.oak.mapper.*;
 import cn.com.tarotframework.server.oak.po.*;
 import cn.com.tarotframework.server.oak.service.IMhUserHourService;
+import cn.com.tarotframework.server.oak.service.ISysProjectService;
+import cn.com.tarotframework.server.oak.service.ISysUserService;
 import cn.com.tarotframework.utils.OakDataUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -36,15 +38,12 @@ public class MhUserHourServiceImpl implements IMhUserHourService {
 
     private final ISysProjectMapper sysProjectMapper;
 
-    private final IMhProjectHourMapper mhProjectHourMapper;
 
-    public MhUserHourServiceImpl(ISysUserMapper sysUserMapper, IMhUserHourMapper mhUserHourMapper, IMhHourDetailMapper mhHourDetailMapper,
-                                 ISysProjectMapper sysProjectMapper, IMhProjectHourMapper mhProjectHourMapper) {
+    public MhUserHourServiceImpl(ISysUserMapper sysUserMapper, IMhUserHourMapper mhUserHourMapper, IMhHourDetailMapper mhHourDetailMapper, ISysProjectMapper sysProjectMapper) {
         this.sysUserMapper = sysUserMapper;
         this.mhUserHourMapper = mhUserHourMapper;
         this.mhHourDetailMapper = mhHourDetailMapper;
         this.sysProjectMapper = sysProjectMapper;
-        this.mhProjectHourMapper = mhProjectHourMapper;
     }
 
 
@@ -70,7 +69,6 @@ public class MhUserHourServiceImpl implements IMhUserHourService {
 
         // 遍历全量数据
         userList.forEach( user -> {
-
             // 获取用户ID
             LambdaQueryWrapper<SysUser> userLambdaQueryWrapper = Wrappers.lambdaQuery(SysUser.class)
                     .eq(SysUser::getNickName, user.getUserName())

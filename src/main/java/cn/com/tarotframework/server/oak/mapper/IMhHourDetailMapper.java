@@ -4,6 +4,9 @@ import cn.com.tarotframework.server.oak.po.MhHourDetail;
 import cn.com.tarotframework.server.oak.po.MhUserHour;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * copyright (C), 2022, 同创工时系统
@@ -16,4 +19,9 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface IMhHourDetailMapper extends BaseMapper<MhHourDetail> {
+
+    List<MhHourDetail> getMhHourDetail(@Param("projectId") String projectId, @Param("userId") String userId, @Param("month") String month);
+
+    void deleteMhHourDetail(@Param("projectId") String projectId, @Param("userId") String userId, @Param("month") String month);
+
 }

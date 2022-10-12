@@ -62,10 +62,10 @@ public class OakDataUtil {
                     return SysUser.builder()
                             .userName(userName).nickName(su.getName())
                             .userType("00").email(userName + "@hatech.com.cn").sex("2")
-                            .avatar("/profile/avatar/2022/09/23/89f54f83-35be-4952-becb-fca07944865e.jpeg")
+                            .avatar("/profile/avatar/2022/10/12/d81a29a3-514a-46e4-b922-221c263b7005.jpeg")
                             .password(password)
                             .status("0").delFlag("0").createBy("admin").createTime(time).updateBy("admin").updateTime(time).remark("管理员")
-                            .deptId(100L).departmentName(su.getTwoDepart()).sysUserRoleId(108L).sysUserPostId(13L).build();
+                            .deptId(100L).departmentName(su.getTwoDepart()).sysUserRoleId(109L).sysUserPostId(14L).build();
                 }).collect(Collectors.toList());
 
         // 根据用户分组，提取用户对应的项目
@@ -151,9 +151,15 @@ public class OakDataUtil {
         return userLists;
     }
 
+    public static String getMonth(String filePath){
+        filePath = filePath.substring(filePath.lastIndexOf("\\")+1);
+        filePath = filePath.substring(0, 7);
+        return filePath;
+    }
+
     public static void main(String[] args) {
 
-        List<ExcelData> lists = getExcelData("D:\\hatech-hour\\2022-08-测试数据.xlsx");
+        List<ExcelData> lists = getExcelData("D:/hatech-hour/2021-01.xlsx");
 //        lists.forEach(System.out::println);
 //        System.out.println(lists.size());
 
@@ -163,7 +169,7 @@ public class OakDataUtil {
 //        getUsers(lists, "2022").forEach(System.out::println);
 //        System.out.println(getUsers(lists, "2022").size());
 
-        getProjectHours(lists).stream().filter(user -> user.getUserName().equals("何玉龙")).forEach(System.out::println);
+        getProjectHours(lists).forEach(System.out::println);
         System.out.println(getProjectHours(lists).size());
 
 
