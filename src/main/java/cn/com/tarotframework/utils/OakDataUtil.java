@@ -23,7 +23,7 @@ public class OakDataUtil {
         Map<String, List<ExcelData>> excel = EasyExcelUtil.readExcelByData(url, ExcelData.class);
         // 将excel表格数据转换成集合
         List<ExcelData> dataList = new ArrayList<>();
-        excel.forEach((key, value) -> value.stream().filter(c -> c.getProjectName() != null).forEach(dataList::add));
+        excel.forEach((key, value) -> value.stream().filter(ed -> ed.getProjectName() != null).forEach(dataList::add));
         return dataList;
     }
 
