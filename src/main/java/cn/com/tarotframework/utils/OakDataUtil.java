@@ -107,9 +107,7 @@ public class OakDataUtil {
                 .map(ed -> User.builder().fillDate(ed.getFillDate()).userName(ed.getName()).build())
                 .collect(Collectors.toList());
 
-        //
         userLists.forEach( user -> {
-
             // 当天详情数据
             List<ProjectHourDetail> projectHourDetailListTotal = new ArrayList<>();
             excelDataLists.stream().filter( excelData -> user.getUserName().equals(excelData.getName())).forEach( excelData -> {
@@ -124,7 +122,7 @@ public class OakDataUtil {
                     .build());
             });
 
-            // 当天总数居 对应 mh_user_hour
+            // 根据用户和工时填报日期分组，计算当天项目工时使用总数 对应 mh_user_hour （当天可能出现处理多个项目）
             List<ProjectHour> projectHourList = projectHourDetailListTotal.stream().collect(Collectors.groupingBy(
                     ph -> ph.getUserName() + "@" + ph.getFillDate(), Collectors.summarizingDouble(ProjectHourDetail::getUseHour)
             )).entrySet().stream().map(value ->
@@ -142,9 +140,7 @@ public class OakDataUtil {
             // 当天数据详情 对应mh_user_detail
             projectHourList.forEach( ph -> {
                 List<ProjectHourDetail> lists = new ArrayList<>();
-                projectHourDetailListTotal.stream()
-                        .filter(phd -> ph.getFillDate().equals(phd.getFillDate()))
-                        .forEach(lists::add);
+                projectHourDetailListTotal.stream().filter(phd -> ph.getFillDate().equals(phd.getFillDate())).forEach(lists::add);
                 ph.setProjectHourDetails(lists);
             });
             user.setProjectHours(projectHourList);
@@ -153,7 +149,7 @@ public class OakDataUtil {
     }
 
     public static String getMonth(String filePath){
-        filePath = filePath.substring(filePath.lastIndexOf("\\")+1);
+        filePath = filePath.substring(filePath.lastIndexOf("/")+1);
         filePath = filePath.substring(0, 7);
         return filePath;
     }
@@ -161,11 +157,11 @@ public class OakDataUtil {
     public static void main(String[] args) {
 
         List<ExcelData> lists = getExcelData("c:/usr/local/oak/2021-01-数据.xlsx");
-        lists.forEach(System.out::println);
-        System.out.println(lists.size());
+//        lists.forEach(System.out::println);
+//        System.out.println(lists.size());
 
-//         getProjects(lists, "2022").forEach(System.out::println);
-//        System.out.println(getProjects(lists, "2022").size());
+         getProjects(lists, "2022").forEach(System.out::println);
+        System.out.println(getProjects(lists, "2022").size());
 
 //        getUsers(lists, "2022").forEach(System.out::println);
 //        System.out.println(getUsers(lists, "2022").size());

@@ -26,7 +26,7 @@ public class FileUtils {
 
         try {
             file.transferTo(newTargetFile);
-            return newTargetFile.getPath();
+            return newTargetFile.getPath().replaceAll("\\\\", "/");
         } catch (IOException e) {
             e.printStackTrace();
             throw new OakException(20001, "文件上传失败: " + filename);
