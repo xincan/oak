@@ -23,7 +23,7 @@ public class OakDataUtil {
         Map<String, List<ExcelData>> excel = EasyExcelUtil.readExcelByData(url, ExcelData.class);
         // 将excel表格数据转换成集合
         List<ExcelData> dataList = new ArrayList<>();
-        excel.forEach((key, value) -> dataList.addAll(value));
+        excel.forEach((key, value) -> value.stream().filter(c -> c.getProjectName() != null).forEach(dataList::add));
         return dataList;
     }
 
@@ -33,6 +33,7 @@ public class OakDataUtil {
      */
     public static List<SysProject> getProjects(List<ExcelData> excelDataLists, String year) {
         return new ArrayList<>(excelDataLists.stream()
+                .filter(ed -> ed.getProjectName()!= null || ed.getProjectName().length() > 0)
                 .collect(Collectors.groupingBy(ExcelData::getProjectName, HashMap::new, Collectors.collectingAndThen(Collectors.toList(), ed ->
                   SysProject.builder()
                         .projectName(ed.get(0).getProjectName())
@@ -159,9 +160,9 @@ public class OakDataUtil {
 
     public static void main(String[] args) {
 
-        List<ExcelData> lists = getExcelData("D:/hatech-hour/2021-01.xlsx");
-//        lists.forEach(System.out::println);
-//        System.out.println(lists.size());
+        List<ExcelData> lists = getExcelData("c:/usr/local/oak/2021-01-数据.xlsx");
+        lists.forEach(System.out::println);
+        System.out.println(lists.size());
 
 //         getProjects(lists, "2022").forEach(System.out::println);
 //        System.out.println(getProjects(lists, "2022").size());
@@ -169,8 +170,8 @@ public class OakDataUtil {
 //        getUsers(lists, "2022").forEach(System.out::println);
 //        System.out.println(getUsers(lists, "2022").size());
 
-        getProjectHours(lists).forEach(System.out::println);
-        System.out.println(getProjectHours(lists).size());
+//        getProjectHours(lists).forEach(System.out::println);
+//        System.out.println(getProjectHours(lists).size());
 
 
     }
