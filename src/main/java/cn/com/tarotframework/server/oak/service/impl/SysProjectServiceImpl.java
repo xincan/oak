@@ -91,11 +91,13 @@ public class SysProjectServiceImpl implements ISysProjectService {
     @Transactional(rollbackFor = Exception.class)
     public void handleProject(List<SysProject> projects) {
         projects.forEach( project -> {
+            // 插入分组后的项目信息
             sysProjectMapper.insert(project);
+            // 插入项目预计工时
             mhProjectHourMapper.insert(MhProjectHour.builder()
                     .projectId(project.getProjectId())
                     .manHour(BigDecimal.valueOf(project.getDuration()))
-                    .useHour(BigDecimal.valueOf(project.getDuration()))
+//                    .useHour(BigDecimal.valueOf(project.getDuration()))
                     .build());
         });
     }

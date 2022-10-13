@@ -6,8 +6,6 @@ import cn.com.tarotframework.server.oak.dto.User;
 import cn.com.tarotframework.server.oak.mapper.*;
 import cn.com.tarotframework.server.oak.po.*;
 import cn.com.tarotframework.server.oak.service.IMhUserHourService;
-import cn.com.tarotframework.server.oak.service.ISysProjectService;
-import cn.com.tarotframework.server.oak.service.ISysUserService;
 import cn.com.tarotframework.utils.OakDataUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -36,13 +34,16 @@ public class MhUserHourServiceImpl implements IMhUserHourService {
 
     private final IMhHourDetailMapper mhHourDetailMapper;
 
+    private final IMhProjectHourMapper mhProjectHourMapper;
+
     private final ISysProjectMapper sysProjectMapper;
 
 
-    public MhUserHourServiceImpl(ISysUserMapper sysUserMapper, IMhUserHourMapper mhUserHourMapper, IMhHourDetailMapper mhHourDetailMapper, ISysProjectMapper sysProjectMapper) {
+    public MhUserHourServiceImpl(ISysUserMapper sysUserMapper, IMhUserHourMapper mhUserHourMapper, IMhHourDetailMapper mhHourDetailMapper, IMhProjectHourMapper mhProjectHourMapper, ISysProjectMapper sysProjectMapper) {
         this.sysUserMapper = sysUserMapper;
         this.mhUserHourMapper = mhUserHourMapper;
         this.mhHourDetailMapper = mhHourDetailMapper;
+        this.mhProjectHourMapper = mhProjectHourMapper;
         this.sysProjectMapper = sysProjectMapper;
     }
 
@@ -78,12 +79,17 @@ public class MhUserHourServiceImpl implements IMhUserHourService {
 
             user.getProjectHours().forEach( ph -> {
 
+                // 插入工时填报表，mh_user_hour, 获取 hour_id, 插入工时填报详情表 mh_hour_detail 中
                 MhUserHour mhUserHour = MhUserHour.builder().userId(userId).fillDate(ph.getFillDate())
                         .totalHour(ph.getTotalHour()).createTime(ph.getCreateTime()).build();
                 mhUserHourMapper.insert(mhUserHour);
 
+                // 插入工时填报详情表 mh_hour_detail
                 ph.getProjectHourDetails().forEach( phd -> {
-                    sysProjects.stream().filter(sp -> sp.getProjectName().equals(phd.getProjectName())).forEach( sp -> phd.setProjectId(sp.getProjectId()));
+                    sysProjects.stream().filter(sp -> sp.getProjectName().equals(phd.getProjectName())).forEach( sp -> {
+                        phd.setProjectId(sp.getProjectId());
+                        ph.setProjectId(sp.getProjectId());
+                    });
                     mhHourDetailMapper.insert(MhHourDetail.builder()
                         .projectId(phd.getProjectId()).userId(userId)
                         .hourId(mhUserHour.getId())
@@ -91,7 +97,20 @@ public class MhUserHourServiceImpl implements IMhUserHourService {
                         .projectStatus(phd.getProjectStatus()).everyday(phd.getEveryDay())
                         .daily(phd.getDaily()).createTime(phd.getCreateTime())
                         .build());
+
+                    // 更新项目使用工时 mh_project_hour 中的 use_hour
+                    // 获取之前项目上使用工时
+                    MhProjectHour mhProjectHour = mhProjectHourMapper.selectOne(
+                            Wrappers.lambdaQuery(MhProjectHour.class).eq(MhProjectHour::getProjectId, phd.getProjectId())
+                    );
+                    BigDecimal useHour = mhProjectHour.getUseHour();
+                    mhProjectHourMapper.update(
+                            MhProjectHour.builder().useHour(useHour.add(mhUserHour.getTotalHour())).build(),
+                            Wrappers.lambdaQuery(MhProjectHour.class).eq(MhProjectHour::getProjectId, ph.getProjectId())
+                    );
                 });
+
+
             });
         });
     }
