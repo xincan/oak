@@ -86,10 +86,7 @@ public class MhUserHourServiceImpl implements IMhUserHourService {
 
                 // 插入工时填报详情表 mh_hour_detail
                 ph.getProjectHourDetails().forEach( phd -> {
-                    sysProjects.stream().filter(sp -> sp.getProjectName().equals(phd.getProjectName())).forEach( sp -> {
-                        phd.setProjectId(sp.getProjectId());
-                        ph.setProjectId(sp.getProjectId());
-                    });
+                    sysProjects.stream().filter(sp -> sp.getProjectName().equals(phd.getProjectName())).forEach( sp -> phd.setProjectId(sp.getProjectId()));
                     mhHourDetailMapper.insert(MhHourDetail.builder()
                         .projectId(phd.getProjectId()).userId(userId)
                         .hourId(mhUserHour.getId())
@@ -105,12 +102,10 @@ public class MhUserHourServiceImpl implements IMhUserHourService {
                     );
                     BigDecimal useHour = mhProjectHour.getUseHour();
                     mhProjectHourMapper.update(
-                            MhProjectHour.builder().useHour(useHour.add(mhUserHour.getTotalHour())).build(),
-                            Wrappers.lambdaQuery(MhProjectHour.class).eq(MhProjectHour::getProjectId, ph.getProjectId())
+                            MhProjectHour.builder().useHour(useHour.add(BigDecimal.valueOf(phd.getUseHour()))).build(),
+                            Wrappers.lambdaQuery(MhProjectHour.class).eq(MhProjectHour::getProjectId, phd.getProjectId())
                     );
                 });
-
-
             });
         });
     }

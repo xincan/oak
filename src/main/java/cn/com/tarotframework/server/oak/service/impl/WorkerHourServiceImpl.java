@@ -82,11 +82,12 @@ public class WorkerHourServiceImpl implements IWorkerHourService {
                          LambdaQueryWrapper<MhProjectHour> queryWrapper = Wrappers.lambdaQuery();
                          queryWrapper.eq(MhProjectHour::getProjectId, sysProject.getProjectId());
                          MhProjectHour mhProjectHour = mhProjectHourMapper.selectOne(queryWrapper);
-                         System.out.println("============" + userHour + "BigDecimal.valueOf(mhProjectHour.getManHour- userHour) = " + BigDecimal.valueOf(mhProjectHour.getManHour().doubleValue() - userHour.get()));
-                         // 更新当前项目工时 数据库总工时 - 当前传入的总工时
-                         double manHour = mhProjectHour.getManHour().doubleValue();
+                        // 更新当前项目工时 数据库总工时 - 当前传入的总工时
+                         double manHour = mhProjectHour.getManHour().doubleValue(),
+                                 useHour = mhProjectHour.getUseHour().doubleValue();
                          MhProjectHour up = MhProjectHour.builder()
-                                 .manHour(BigDecimal.valueOf(manHour <= 0 ? 0.0: mhProjectHour.getManHour().doubleValue() - userHour.get())).build();
+                                 .manHour(BigDecimal.valueOf(manHour <= 0 ? 0.0: mhProjectHour.getManHour().doubleValue() - userHour.get()))
+                            .useHour(BigDecimal.valueOf(useHour <= 0 ? 0.0: mhProjectHour.getManHour().doubleValue() - userHour.get())).build();
                          mhProjectHourMapper.update(up, queryWrapper);
                          // 删除工时详情
                          mhHourDetailMapper.deleteMhHourDetail(sysProject.getProjectId().toString(), sysProject.getUserId().toString(), month);
