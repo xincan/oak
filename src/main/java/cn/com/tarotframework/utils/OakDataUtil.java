@@ -160,11 +160,11 @@ public class OakDataUtil {
 //        lists.forEach(System.out::println);
 //        System.out.println(lists.size());
 
-         getProjects(lists, "2022").forEach(System.out::println);
-        System.out.println(getProjects(lists, "2022").size());
+//         getProjects(lists, "2022").forEach(System.out::println);
+//        System.out.println(getProjects(lists, "2022").size());
 
-//        getUsers(lists, "2022").forEach(System.out::println);
-//        System.out.println(getUsers(lists, "2022").size());
+        getUsers(lists, "2022").forEach(System.out::println);
+        System.out.println(getUsers(lists, "2022").size());
 
 //        getProjectHours(lists).forEach(System.out::println);
 //        System.out.println(getProjectHours(lists).size());

@@ -14,6 +14,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -98,6 +99,12 @@ public class SysUserServiceImpl implements ISysUserService {
                         .filter( sysProjectUser -> project.getProjectName().equals(sysProjectUser.getProjectName()) )
                         .forEach( sysProjectUser -> sysProjectUser.setProjectId(project.getProjectId()) );
             });
+
+            // 根据用户名称，查询用户是否存在，如果存在，则登录名称加1， 一般判断汉字转拼音之后，有重复的情况
+            SysUser sysUser = sysUserMapper.selectOne(Wrappers.lambdaQuery(SysUser.class).eq(SysUser::getUserName, user.getUserName()));
+            if (!ObjectUtils.isEmpty(sysUser)) {
+                user.setUserName(sysUser.getUserName() + 1);
+            }
             sysUserMapper.insert(user);
             sysUserPostMapper.insert(SysUserPost.builder().userId(user.getUserId()).postId(user.getSysUserPostId()).build());
             sysUserRoleMapper.insert(SysUserRole.builder().userId(user.getUserId()).roleId(user.getSysUserRoleId()).build());
