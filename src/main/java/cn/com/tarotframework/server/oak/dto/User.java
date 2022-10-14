@@ -18,6 +18,8 @@ public class User {
 
     private String userName;
 
+    private String nickName;
+
     private String fillDate;
 
     // 创建时间

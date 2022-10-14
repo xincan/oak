@@ -69,6 +69,18 @@ public class OakDataUtil {
                             .deptId(100L).departmentName(su.getTwoDepart()).sysUserRoleId(109L).sysUserPostId(14L).build();
                 }).collect(Collectors.toList());
 
+        // 处理重名情况
+        int num = 0;
+        for (int i = 0; i < users.size() - 1; i++) {
+            String userName = PinyinUtil.getPinyin(users.get(i).getUserName());
+            for (int j = users.size() - 1; j > i; j--) {
+                if (users.get(j).getUserName().equals(users.get(i).getUserName())) {
+                    users.get(j).setUserName(userName + (num++));
+                }
+            }
+            num = 0;
+        }
+
         // 根据用户分组，提取用户对应的项目
         Map<String, List<ExcelData>> up = new HashMap<>();
 
@@ -104,13 +116,25 @@ public class OakDataUtil {
         // 根据用户去重，获取所有人员
         List<User> userLists = excelDataLists.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(ExcelData::getName))), ArrayList::new))
                 .stream()
-                .map(ed -> User.builder().fillDate(ed.getFillDate()).userName(ed.getName()).build())
+                .map(ed -> User.builder().fillDate(ed.getFillDate()).userName(PinyinUtil.getPinyin(ed.getName())).nickName(ed.getName()).build())
                 .collect(Collectors.toList());
+
+        // 处理重名情况
+        int num = 0;
+        for (int i = 0; i < userLists.size() - 1; i++) {
+            String userName = PinyinUtil.getPinyin(userLists.get(i).getUserName());
+            for (int j = userLists.size() - 1; j > i; j--) {
+                if (userLists.get(j).getUserName().equals(userLists.get(i).getUserName())) {
+                    userLists.get(j).setUserName(userName + (num++));
+                }
+            }
+            num = 0;
+        }
 
         userLists.forEach( user -> {
             // 当天详情数据
             List<ProjectHourDetail> projectHourDetailListTotal = new ArrayList<>();
-            excelDataLists.stream().filter( excelData -> user.getUserName().equals(excelData.getName())).forEach( excelData -> {
+            excelDataLists.stream().filter( excelData -> user.getNickName().equals(excelData.getName())).forEach( excelData -> {
                 projectHourDetailListTotal.add(ProjectHourDetail.builder()
                     .userName(user.getUserName())
                     .projectName(excelData.getProjectName())
@@ -163,11 +187,11 @@ public class OakDataUtil {
 //         getProjects(lists, "2022").forEach(System.out::println);
 //        System.out.println(getProjects(lists, "2022").size());
 
-        getUsers(lists, "2022").forEach(System.out::println);
-        System.out.println(getUsers(lists, "2022").size());
+//        getUsers(lists, "2022").forEach(System.out::println);
+//        System.out.println(getUsers(lists, "2022").size());
 
-//        getProjectHours(lists).forEach(System.out::println);
-//        System.out.println(getProjectHours(lists).size());
+        getProjectHours(lists).forEach(System.out::println);
+        System.out.println(getProjectHours(lists).size());
 
 
     }

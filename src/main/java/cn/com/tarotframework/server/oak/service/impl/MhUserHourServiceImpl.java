@@ -72,8 +72,8 @@ public class MhUserHourServiceImpl implements IMhUserHourService {
         userList.forEach( user -> {
             // 获取用户ID
             LambdaQueryWrapper<SysUser> userLambdaQueryWrapper = Wrappers.lambdaQuery(SysUser.class)
-                    .eq(SysUser::getNickName, user.getUserName())
-                    .select(SysUser::getUserId, SysUser::getNickName);
+                    .eq(SysUser::getUserName, user.getUserName())
+                    .select(SysUser::getUserId, SysUser::getUserName);
             SysUser sysUser = sysUserMapper.selectOne(userLambdaQueryWrapper);
             Long userId = sysUser.getUserId();
 

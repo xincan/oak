@@ -69,9 +69,9 @@ public class SysUserServiceImpl implements ISysUserService {
         projectLambdaQueryWrapper.select(SysProject::getProjectId, SysProject::getProjectName);
         List<SysProject> projects = this.sysProjectMapper.selectList(projectLambdaQueryWrapper);
 
-        // 获取用户信息（userId, nickName）
+        // 获取用户信息（userId, userName）
         LambdaQueryWrapper<SysUser> userLambdaQueryWrapper = Wrappers.lambdaQuery();
-        userLambdaQueryWrapper.select(SysUser::getUserId, SysUser::getNickName);
+        userLambdaQueryWrapper.select(SysUser::getUserId, SysUser::getUserName);
         List<SysUser> sysUsers = this.sysUserMapper.selectList(userLambdaQueryWrapper);
 
         if (CollectionUtils.isEmpty(sysUsers)) {
@@ -80,7 +80,7 @@ public class SysUserServiceImpl implements ISysUserService {
             // 求users中，sysUsers的补集
             List<SysUser> insertUsers = users.stream()
                     .filter(user ->
-                            !sysUsers.stream().map(SysUser::getNickName).collect(Collectors.toList()).contains(user.getNickName())
+                            !sysUsers.stream().map(SysUser::getUserName).collect(Collectors.toList()).contains(user.getUserName())
                     ).collect(Collectors.toList());
             // 比对用户与部门集合，将比对上的部门信息ID，回填给用户对象
             if (!CollectionUtils.isEmpty(insertUsers)) {
@@ -101,10 +101,10 @@ public class SysUserServiceImpl implements ISysUserService {
             });
 
             // 根据用户名称，查询用户是否存在，如果存在，则登录名称加1， 一般判断汉字转拼音之后，有重复的情况
-            SysUser sysUser = sysUserMapper.selectOne(Wrappers.lambdaQuery(SysUser.class).eq(SysUser::getUserName, user.getUserName()));
-            if (!ObjectUtils.isEmpty(sysUser)) {
-                user.setUserName(sysUser.getUserName() + 1);
-            }
+//            SysUser sysUser = sysUserMapper.selectOne(Wrappers.lambdaQuery(SysUser.class).eq(SysUser::getUserName, user.getUserName()));
+//            if (!ObjectUtils.isEmpty(sysUser)) {
+//                user.setUserName(sysUser.getUserName() + 1);
+//            }
             sysUserMapper.insert(user);
             sysUserPostMapper.insert(SysUserPost.builder().userId(user.getUserId()).postId(user.getSysUserPostId()).build());
             sysUserRoleMapper.insert(SysUserRole.builder().userId(user.getUserId()).roleId(user.getSysUserRoleId()).build());

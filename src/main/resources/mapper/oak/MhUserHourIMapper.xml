@@ -4,7 +4,7 @@
 
     <select id="selectProjectUserByProjectIdAndName" resultType="cn.com.tarotframework.server.oak.po.SysProjectUser">
         SELECT project_id, user_id FROM sys_project_user WHERE user_id = (
-            SELECT user_id FROM sys_user WHERE nick_name = #{userName}
+            SELECT user_id FROM sys_user WHERE user_name = #{userName}
         )
     </select>
 

@@ -97,7 +97,6 @@ public class SysProjectServiceImpl implements ISysProjectService {
             mhProjectHourMapper.insert(MhProjectHour.builder()
                     .projectId(project.getProjectId())
                     .manHour(BigDecimal.valueOf(project.getDuration()))
-//                    .useHour(BigDecimal.valueOf(project.getDuration()))
                     .build());
         });
     }
