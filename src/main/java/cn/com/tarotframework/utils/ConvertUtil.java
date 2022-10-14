@@ -23,6 +23,10 @@ public class ConvertUtil {
     private static final String FIX_NUM_ZWXX = "ZWXX000000";
     private static final String FIX_NUM_BMNBPX = "BMNBPX0000";
     private static final String FIX_NUM_GSPX = "GSPX000000";
+    private static final String FIX_NUM_GLL = "GLL000000";
+    private static final String FIX_NUM_WBPX = "WBPX000000";
+    private static final String FIX_NUM_YYKF = "YYKF000000";
+    private static final String FIX_NUM_POC = "POC0000000";
 
 
     public static String getProjectNum(String str) {
@@ -69,6 +73,22 @@ public class ConvertUtil {
 
         if(str.equals("未填报工时")){
             return ConvertUtil.FIX_NUM_WTBGS;
+        }
+
+        if(str.equals("管理类")){
+            return ConvertUtil.FIX_NUM_GLL;
+        }
+
+        if(str.equals("外部培训")){
+            return ConvertUtil.FIX_NUM_WBPX;
+        }
+
+        if(str.equals("应用开发")){
+            return ConvertUtil.FIX_NUM_YYKF;
+        }
+
+        if(str.equals("POC测试类".toUpperCase())){
+            return ConvertUtil.FIX_NUM_POC;
         }
 
         return setNum();
